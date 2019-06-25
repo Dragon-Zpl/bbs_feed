@@ -1,7 +1,0 @@
-.idea
-.vscode
-dist/
-conf/*.conf
-conf/*.ini
-vendor/
-main
