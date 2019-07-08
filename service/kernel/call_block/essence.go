@@ -1,10 +1,10 @@
-package kernel
+package call_block
+
+/* 精华调用块*/
 
 import (
-	"bbs_feed/service/service_confs"
 	"context"
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -39,6 +39,7 @@ func(this *Essence) RemoveReportThread() {
 		select {
 		case tids := <- this.reportChan:
 			// todo clear redis uids
+			fmt.Println(tids)
 		}
 	}
 }
@@ -58,7 +59,7 @@ func(this *Essence) Init() {
 	ctx, cancel := context.WithCancel(context.Background())
 	this.Ctx = ctx
 	this.cancel = cancel
-	this.essenceRules = service_confs.Essence
+	this.essenceRules = essence
 }
 
 func (this *Essence) ChangeConf(conf interface{}) {

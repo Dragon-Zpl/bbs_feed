@@ -106,6 +106,8 @@ func (this *feedService) ChangeFids(topicId string, topicIds []string) {
 
 func NewSerivce() {
 	FeedService = NewFeedService(CreateAgents()...)
+	FeedService.InitService()
+	FeedService.StartService()
 }
 
 

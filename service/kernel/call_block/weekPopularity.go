@@ -1,7 +1,6 @@
-package kernel
+package call_block
 
 import (
-	"bbs_feed/service/service_confs"
 	"context"
 	"fmt"
 	"time"
@@ -37,6 +36,7 @@ func(this *WeekPopularity) RemoveReportUser() {
 		select {
 		case uids := <- this.reportChan:
 			// todo clear redis uids
+			fmt.Println(uids)
 		}
 	}
 }
@@ -55,7 +55,7 @@ func(this *WeekPopularity) Init() {
 	ctx, cancel := context.WithCancel(context.Background())
 	this.Ctx = ctx
 	this.cancel = cancel
-	this.weekPopularityRule = service_confs.WeekPopularity
+	this.weekPopularityRule = weekPopularity
 }
 
 func (this *WeekPopularity) ChangeConf(conf interface{}) {

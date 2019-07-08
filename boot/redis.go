@@ -1,11 +1,15 @@
 package boot
 
 import (
-	"bbs_go_push/conf"
+	"bbs_feed/conf"
 	goredis "github.com/go-redis/redis"
 	"sync"
 )
 
+const (
+	SESSION = iota
+	CACHE
+)
 var (
 	session *goredis.Client
 	cache   *goredis.Client
@@ -41,6 +45,11 @@ func InstanceRedisCli(db int) *goredis.Client {
 		rdMu.Lock()
 		defer rdMu.Unlock()
 		ConnectRedis()
+		if db == 0 {
+			tmp = session
+		} else {
+			tmp = cache
+		}
 		return tmp
 	}
 }

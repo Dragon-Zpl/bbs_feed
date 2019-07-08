@@ -6,11 +6,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"go.etcd.io/etcd/clientv3"
 )
 
 var (
 	MySQLConf MySQL
 	RedisConf Redis
+	EtcdConf clientv3.Config
 )
 
 type MySQL struct {

@@ -1,7 +1,9 @@
-package kernel
+package call_block
 
+/*
+	贡献榜
+*/
 import (
-	"bbs_feed/service/service_confs"
 	"context"
 	"fmt"
 	"time"
@@ -10,6 +12,8 @@ import (
 
 type ContributionRules struct {
 	cronExp time.Duration // 周期时间
+	views int
+	replys int
 }
 
 type Contribution struct {
@@ -34,6 +38,7 @@ func(this *Contribution) RemoveReportUser() {
 		select {
 		case uids := <- this.reportChan:
 			// todo clear redis uids
+			fmt.Println(uids)
 		}
 	}
 }
@@ -52,7 +57,7 @@ func (this *Contribution) Init() {
 	ctx, cancel := context.WithCancel(context.Background())
 	this.Ctx = ctx
 	this.cancel = cancel
-	this.ContributionRules = service_confs.Contribution
+	this.ContributionRules = contribution
 }
 
 func (this *Contribution) ChangeConf(conf interface{}) {

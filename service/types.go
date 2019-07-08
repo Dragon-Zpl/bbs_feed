@@ -7,3 +7,9 @@ const (
 	WEEK_POPULARITY = "weekPopularity" // 周人气
 	CONTRIBUTION = "contribution" // 贡献
 )
+
+type CallBlockTrait struct {
+	IsSetTop bool
+	Subscript string
+}
+
