@@ -6,13 +6,11 @@ import (
 )
 
 var (
-	hot HotRules
-	essence EssenceRules
-	contribution ContributionRules
+	hot            HotRules
+	essence        EssenceRules
+	contribution   ContributionRules
 	weekPopularity WeekPopularityRule
 )
-
-
 
 func InitConfs() {
 	confs := feed_conf.GetAll()

@@ -1,6 +1,7 @@
 package call_block
 
 import (
+	"bbs_feed/service"
 	"context"
 	"fmt"
 	"time"
@@ -13,11 +14,11 @@ type WeekPopularityRule struct {
 type WeekPopularity struct {
 	name string
 
-	reportChan chan []string
+	reportChan         chan []string
 	weekPopularityRule WeekPopularityRule
 
-	cancel       context.CancelFunc
-	Ctx          context.Context
+	cancel context.CancelFunc
+	Ctx    context.Context
 
 	topicIds []string // 数据源
 
@@ -25,23 +26,22 @@ type WeekPopularity struct {
 
 func NewWeekPopularity(topicId int, topicIds []string) *WeekPopularity {
 	return &WeekPopularity{
-		name:fmt.Sprintf("%d-weekPopularity", topicId),
-		topicIds:topicIds,
+		name:     fmt.Sprintf("%d-%s", topicId, service.WEEK_POPULARITY),
+		topicIds: topicIds,
 	}
 }
 
-
-func(this *WeekPopularity) RemoveReportUser() {
+func (this *WeekPopularity) RemoveReportUser() {
 	for {
 		select {
-		case uids := <- this.reportChan:
+		case uids := <-this.reportChan:
 			// todo clear redis uids
 			fmt.Println(uids)
 		}
 	}
 }
 
-func (this *WeekPopularity) AcceptSign(userIds []string){
+func (this *WeekPopularity) AcceptSign(userIds []string) {
 	this.reportChan <- userIds
 	return
 }
@@ -50,8 +50,7 @@ func (this *WeekPopularity) GetThis() interface{} {
 	return this
 }
 
-
-func(this *WeekPopularity) Init() {
+func (this *WeekPopularity) Init() {
 	ctx, cancel := context.WithCancel(context.Background())
 	this.Ctx = ctx
 	this.cancel = cancel
@@ -69,10 +68,10 @@ func (this *WeekPopularity) Start() {
 	t := time.NewTimer(this.weekPopularityRule.cronExp)
 	for {
 		select {
-		case <- t.C:
+		case <-t.C:
 			// todo  根据配置 写redis数据
 			t.Reset(this.weekPopularityRule.cronExp)
-		case <- this.Ctx.Done():
+		case <-this.Ctx.Done():
 			return
 		}
 	}
@@ -86,8 +85,7 @@ func (this *WeekPopularity) Stop() {
 	this.cancel()
 }
 
-
-func (this *WeekPopularity) GetName() (string){
+func (this *WeekPopularity) GetName() string {
 	return this.name
 }
 

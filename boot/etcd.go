@@ -9,10 +9,8 @@ var client *clientv3.Client
 
 func ConnectEtcd() {
 	var err error
-	client, err  = clientv3.New(conf.EtcdConf)
+	client, err = clientv3.New(conf.EtcdConf)
 	if err != nil {
 		panic(err)
 	}
 }
-
-

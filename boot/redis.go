@@ -10,6 +10,7 @@ const (
 	SESSION = iota
 	CACHE
 )
+
 var (
 	session *goredis.Client
 	cache   *goredis.Client

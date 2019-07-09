@@ -25,7 +25,7 @@ func (m *Model) TableName() string {
 	return tablename
 }
 
-func GetAll() []*Model{
+func GetAll() []*Model {
 	o := boot.GetMasterMysql()
 	qs := o.QueryTable((*Model)(nil))
 	m := make([]*Model, 0)

@@ -2,3 +2,4 @@
 vendor/
 conf/conf.ini
 main
+go_build_main_go

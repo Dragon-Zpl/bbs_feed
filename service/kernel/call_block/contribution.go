@@ -4,47 +4,46 @@ package call_block
 	贡献榜
 */
 import (
+	"bbs_feed/service"
 	"context"
 	"fmt"
 	"time"
 )
 
-
 type ContributionRules struct {
 	cronExp time.Duration // 周期时间
-	views int
-	replys int
+	views   int
+	replys  int
 }
 
 type Contribution struct {
-	name string
-	reportChan chan []string
+	name              string
+	reportChan        chan []string
 	ContributionRules ContributionRules
 
-	cancel       context.CancelFunc
-	Ctx          context.Context
+	cancel   context.CancelFunc
+	Ctx      context.Context
 	topicIds []string // 数据源
 }
 
 func NewContribution(topicId int, topicIds []string) *Contribution {
 	return &Contribution{
-		name:fmt.Sprintf("%d-contribution", topicId),
-		topicIds:topicIds,
+		name:     fmt.Sprintf("%d-%s", topicId, service.CONTRIBUTION),
+		topicIds: topicIds,
 	}
 }
 
-func(this *Contribution) RemoveReportUser() {
+func (this *Contribution) RemoveReportUser() {
 	for {
 		select {
-		case uids := <- this.reportChan:
+		case uids := <-this.reportChan:
 			// todo clear redis uids
 			fmt.Println(uids)
 		}
 	}
 }
 
-
-func (this *Contribution) AcceptSign(userIds []string){
+func (this *Contribution) AcceptSign(userIds []string) {
 	this.reportChan <- userIds
 	return
 }
@@ -71,10 +70,10 @@ func (this *Contribution) Start() {
 	t := time.NewTimer(this.ContributionRules.cronExp)
 	for {
 		select {
-		case <- t.C:
+		case <-t.C:
 			// todo  根据配置 写redis数据
 			t.Reset(this.ContributionRules.cronExp)
-		case <- this.Ctx.Done():
+		case <-this.Ctx.Done():
 			return
 		}
 	}
@@ -88,8 +87,7 @@ func (this *Contribution) Stop() {
 	this.cancel()
 }
 
-
-func (this *Contribution) GetName() (string) {
+func (this *Contribution) GetName() string {
 	return this.name
 }
 
@@ -98,4 +96,3 @@ func (this *Contribution) reStart() {
 	this.Ctx, this.cancel = context.WithCancel(context.Background())
 	this.Start()
 }
-

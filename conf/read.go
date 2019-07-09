@@ -3,16 +3,16 @@ package conf
 import (
 	"github.com/astaxie/beego/logs"
 	"github.com/go-ini/ini"
+	"go.etcd.io/etcd/clientv3"
 	"os"
 	"path/filepath"
 	"strings"
-	"go.etcd.io/etcd/clientv3"
 )
 
 var (
 	MySQLConf MySQL
 	RedisConf Redis
-	EtcdConf clientv3.Config
+	EtcdConf  clientv3.Config
 )
 
 type MySQL struct {
@@ -30,7 +30,6 @@ type Redis struct {
 	Password string
 	DB       int
 }
-
 
 func GetRootPath() string {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))

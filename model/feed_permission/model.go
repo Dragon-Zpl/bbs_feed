@@ -28,11 +28,17 @@ func (m *Model) TableName() string {
 	return tablename
 }
 
-
-func GetAll() []*Model{
+func GetAll() []*Model {
 	o := boot.GetMasterMysql()
 	qs := o.QueryTable((*Model)(nil))
 	m := make([]*Model, 0)
 	qs.Filter("is_use", 1).All(&m)
 	return m
+}
+
+func GetOne(topicId string) (m Model, err error) {
+	o := boot.GetMasterMysql()
+	qs := o.QueryTable((*Model)(nil))
+	err = qs.Filter("topicId", topicId).One(&m)
+	return
 }
