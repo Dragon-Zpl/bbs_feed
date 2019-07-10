@@ -4,6 +4,7 @@ import (
 	"bbs_feed/boot"
 	"encoding/json"
 	"github.com/go-redis/redis"
+	"time"
 )
 
 // zset add data
@@ -41,4 +42,19 @@ func DelZAdd(key string, member string) {
 			}
 		}
 	}
+}
+
+
+func KeyExist(key string) bool {
+	count, _ := boot.InstanceRedisCli(boot.CACHE).Exists(key).Result()
+	return count == 1
+}
+
+func HSet(key string, field string, val string, expiration time.Duration) {
+	if len(field) == 0 || len(val) == 0 {
+		return
+	}
+	var r = boot.InstanceRedisCli(boot.CACHE)
+	r.HSet(key, field, val).Result()
+	r.Expire(key, expiration).Result()
 }

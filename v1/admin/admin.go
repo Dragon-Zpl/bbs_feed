@@ -5,10 +5,13 @@ import (
 	"bbs_feed/service"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/kernel/creater"
+	"bbs_feed/service/redis_ops"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func Mapping(prefix string, app *gin.Engine) {
@@ -22,6 +25,7 @@ func Mapping(prefix string, app *gin.Engine) {
 	admin.DELETE("/call_back", DelTopicData)
 	admin.POST("/report/thread", ThreadReport)
 	admin.POST("/report/user", UserReport)
+	admin.POST("/trait", AddCallBlockTrait)
 
 }
 
@@ -237,9 +241,37 @@ type TraitFrom struct {
 	Id       string                 `form:"id"`
 	TopicId  string                 `form:"topicId" binding:"required"`
 	FeedType string                 `form:"feedType" binding:"required"`
+	Exp      int `form:"exp" binding:"required"`
 	Trait    service.CallBlockTrait `form:"trait"`
 }
 
 func AddCallBlockTrait(ctx *gin.Context) {
-
+	var traitFrom TraitFrom
+	if err := ctx.ShouldBind(&traitFrom); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
+			"code":    1053,
+			"message": "参数传入有误",
+		})
+		return
+	}
+	redisKey := fmt.Sprintf("call_block_%s_trait", traitFrom.FeedType)
+	if !redis_ops.KeyExist(redisKey) {
+		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
+			"code":    1053,
+			"message": "参数传入有误",
+		})
+		return
+	}
+	if traitBytes, err := json.Marshal(traitFrom.Trait); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
+			"code":    1053,
+			"message": "参数传入有误",
+		})
+		return
+		redis_ops.HSet(redisKey, traitFrom.Id, string(traitBytes), time.Duration(traitFrom.Exp) * time.Hour)
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+	})
 }

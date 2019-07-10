@@ -16,8 +16,8 @@ import (
 	"time"
 )
 
-const CALl_BLOCK_ESSENCE_THREAD = "call-block-essence-thread"
-const CALl_BLOCK_ESSENCE_THREAD_TRAIT = "call-block-essence-thread-trait"
+const CALl_BLOCK_ESSENCE_THREAD = "call_block_essence"
+const CALl_BLOCK_ESSENCE_THREAD_TRAIT = "call_block_essence_trait"
 
 type EssenceRules struct {
 	CronExp      int           // 周期时间 min

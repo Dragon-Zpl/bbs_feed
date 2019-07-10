@@ -1,7 +1,7 @@
 package call_block
 
 /*
- 热门调用块
+ 热门帖子调用块
 */
 import (
 	"bbs_feed/boot"
@@ -17,8 +17,8 @@ import (
 	"time"
 )
 
-const CALl_BLOCK_HOT_THREAD = "call-block-hot-thread"
-const CALl_BLOCK_HOT_THREAD_TRAIT = "call-block-hot-thread_trait"
+const CALl_BLOCK_HOT_THREAD = "call_block_hot_thread"
+const CALl_BLOCK_HOT_THREAD_TRAIT = "call_block_hot_thread_trait"
 
 type HotRules struct {
 	Day        int `json:"day"`
@@ -40,12 +40,12 @@ type Hot struct {
 	threadReport contract.ThreadReport
 }
 
-func NewHot(topicId int, topicIds []string, threadReport contract.ThreadReport) *Hot {
+func NewHot(topicId int, topicIds []string) *Hot {
 	return &Hot{
 		topicId:      topicId,
 		name:         fmt.Sprintf("%d%s%s", topicId, service.Separator, service.HOT),
 		topicIds:     topicIds,
-		threadReport: threadReport,
+		threadReport: contract.CreateThreadReport(),
 	}
 }
 

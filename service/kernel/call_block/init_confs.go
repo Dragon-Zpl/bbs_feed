@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 )
 
+/*
+读取各个模块的配置
+*/
+
 var (
 	hot            HotRules
 	essence        EssenceRules
