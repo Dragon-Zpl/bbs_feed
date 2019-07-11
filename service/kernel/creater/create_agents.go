@@ -6,6 +6,7 @@ import (
 	"bbs_feed/service/kernel/contract"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 /*
@@ -13,6 +14,7 @@ import (
 */
 
 type AgentGen func(int, []string) contract.Agent
+var once sync.Once
 
 var AgentMapping = map[string]AgentGen {
 	"hot_thread": HotThread(),
@@ -33,21 +35,21 @@ func HotThread() AgentGen {
 // 精华贴
 func Essence() AgentGen {
 	return func(topicId int, topicIds []string) contract.Agent {
-		return nil
+		return call_block.NewEssence(topicId, topicIds)
 	}
 }
 
 // 最新最热
 func NewHot() AgentGen {
 	return func(topicId int, topicIds []string) contract.Agent {
-		return nil
+		return call_block.NewHot(topicId, topicIds)
 	}
 }
 
 // 今日导读
 func TodayIntroduction() AgentGen {
 	return func(topicId int, topicIds []string) contract.Agent {
-		return nil
+		return call_block.NewTodayIntro(topicId, topicIds)
 	}
 }
 
@@ -64,7 +66,10 @@ func WeekContribution() AgentGen {
 		return nil
 	}
 }
+
+// agents 的生成器 用于启动时
 func CreateAgents()[]contract.Agent{
+	once.Do(call_block.InitConfs)
 	topics := feed_permission.GetAll()
 	agents := make([]contract.Agent, 0)
 
@@ -84,26 +89,11 @@ func CreateAgents()[]contract.Agent{
 		}
 	}
 
-	//topics = []*feed_permission.Model{
-	//	&feed_permission.Model{
-	//		TopicId:        2,
-	//		HotThread:         "",
-	//		Essence:        "",
-	//		WeekPopularity: "",
-	//		Contribution:   "",
-	//		TopicIds:       "2, 3, 4",
-	//		IsUse:          1,
-	//	},
-	//}
-	//for _, topic := range topics {
-	//	topicIds := strings.Split(topic.TopicIds, ",")
-	//	agents = append(agents, AllTypeAgents(topic.TopicId, topicIds)...)
-	//
-	//}
 	return agents
 }
 
 func CreateAgent(topicId string) ([]contract.Agent, error){
+	once.Do(call_block.InitConfs)
 	topic, err := feed_permission.GetOne(topicId)
 	if err != nil {
 		return nil, err

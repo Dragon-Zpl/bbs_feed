@@ -38,11 +38,11 @@ type Essence struct {
 	threadReport contract.ThreadReport // 组合举报接口
 }
 
-func NewEssence(topicId int, topicIds []string, threadReport contract.ThreadReport) *Essence {
+func NewEssence(topicId int, topicIds []string) *Essence {
 	return &Essence{
 		name:         fmt.Sprintf("%d-%s", topicId, service.ESSENCE),
 		topicIds:     topicIds,
-		threadReport: threadReport,
+		threadReport: contract.CreateThreadReport(),
 	}
 }
 

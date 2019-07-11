@@ -2,6 +2,7 @@ package data_source
 
 import "bbs_feed/model/forum_thread"
 
+// 热门贴的排序规则
 type HotThread []*forum_thread.Model
 
 
@@ -28,7 +29,7 @@ func (this HotThread) Swap(i, j int) {
 	this[i], this[j] = this[j], this[i]
 }
 
-
+// 精华贴的排序规则
 type EssenceThread []*forum_thread.Model
 
 
@@ -56,7 +57,7 @@ func (this EssenceThread) Swap(i, j int) {
 }
 
 
-
+// 今日导读的排序规则
 type TodayIntroThread []*forum_thread.Model
 
 
@@ -76,6 +77,7 @@ func (this TodayIntroThread) Swap(i, j int) {
 }
 
 
+// 最新最热的排序规则
 type NewHotThread []*forum_thread.Model
 
 func (this NewHotThread) Len() int {

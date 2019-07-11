@@ -14,6 +14,8 @@ var (
 	essence        EssenceRules
 	contribution   ContributionRules
 	weekPopularity WeekPopularityRule
+	newHot         NewHotRules
+	todayIntro     IntroRules
 )
 
 func InitConfs() {
@@ -28,7 +30,10 @@ func InitConfs() {
 			json.Unmarshal([]byte(conf.Conf), &contribution)
 		case "weekPopularity":
 			json.Unmarshal([]byte(conf.Conf), &weekPopularity)
-
+		case "hot_new":
+			json.Unmarshal([]byte(conf.Conf), &newHot)
+		case "todayIntro":
+			json.Unmarshal([]byte(conf.Conf), &todayIntro)
 		}
 	}
 }

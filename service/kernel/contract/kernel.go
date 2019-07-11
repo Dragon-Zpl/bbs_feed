@@ -2,6 +2,7 @@ package contract
 
 import (
 	"bbs_feed/service"
+	"bbs_feed/service/kernel/creater"
 	"errors"
 	"fmt"
 	"strings"
@@ -15,12 +16,12 @@ type Agent interface {
 	Init()
 	Start()
 	Stop()
-	ChangeConf(string) error
+	ChangeConf(string) error // 修改配置
 	GetName()string
 	GetThis() interface{}
-	ChangeFids([]string)
-	AddTrait(id string, trait service.CallBlockTrait)
-	Remover([]int)
+	ChangeFids([]string)  // 修改数据源
+	AddTrait(id string, trait service.CallBlockTrait)  // 添加额外信息
+	Remover([]int)  // 删除agents redis 数据
 }
 
 //var FeedService *feedService
@@ -84,7 +85,6 @@ func (this *FeedService) RemovePusher(topicId string) {
 	}
 }
 
-
 func (this *FeedService) ChangeConf(typ string, conf string) error {
 	for _, agent := range this.Agents {
 		if strings.Split(agent.GetName(), service.Separator)[1] == typ {
@@ -129,6 +129,13 @@ func NewFeedService(agents ...Agent) *FeedService {
 
 func InstanceFeedService() *FeedService {
 	return feedService
+}
+
+
+func InitFeedService() {
+	feedService = NewFeedService(creater.CreateAgents()...)
+	feedService.InitService()
+	feedService.StartService()
 }
 
 
