@@ -2,6 +2,7 @@ package creater
 
 import (
 	"bbs_feed/model/feed_permission"
+	"bbs_feed/service/data_source"
 	"bbs_feed/service/kernel/call_block"
 	"bbs_feed/service/kernel/contract"
 	"reflect"
@@ -76,7 +77,7 @@ func InitGenAgents()[]contract.Agent{
 	for _, one := range topics {
 		topicId := one.TopicId
 		topicIds := strings.Split(one.TopicIds, ",")
-
+		topicIds = data_source.CheckAngGetCurTopics(topicIds)
 		t := reflect.TypeOf(one).Elem()
 		v := reflect.ValueOf(one).Elem()
 		for i := 0; i < t.NumField(); i++ {
@@ -102,6 +103,7 @@ func GenAgents(topicId string) ([]contract.Agent, error){
 	agents := make([]contract.Agent, 0)
 	tid := topic.TopicId
 	topicIds := strings.Split(topic.TopicIds, ",")
+	topicIds = data_source.CheckAngGetCurTopics(topicIds)
 
 	t := reflect.TypeOf(topic).Elem()
 	v := reflect.ValueOf(topic).Elem()
@@ -118,6 +120,8 @@ func GenAgents(topicId string) ([]contract.Agent, error){
 
 
 func GenAgent(topicId int,  feedTyp string, topicIds []string) contract.Agent {
+	topicIds = data_source.CheckAngGetCurTopics(topicIds)
+
 	if f, ok := AgentMapping[feedTyp]; ok {
 		return f(topicId, topicIds)
 	}
