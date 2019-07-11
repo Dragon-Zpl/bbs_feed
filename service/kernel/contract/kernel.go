@@ -133,7 +133,7 @@ func InstanceFeedService() *FeedService {
 
 
 func InitFeedService() {
-	feedService = NewFeedService(creater.CreateAgents()...)
+	feedService = NewFeedService(creater.InitGenAgents()...)
 	feedService.InitService()
 	feedService.StartService()
 }

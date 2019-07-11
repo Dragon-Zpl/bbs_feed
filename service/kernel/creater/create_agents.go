@@ -68,7 +68,7 @@ func WeekContribution() AgentGen {
 }
 
 // agents 的生成器 用于启动时
-func CreateAgents()[]contract.Agent{
+func InitGenAgents()[]contract.Agent{
 	once.Do(call_block.InitConfs)
 	topics := feed_permission.GetAll()
 	agents := make([]contract.Agent, 0)
@@ -92,7 +92,8 @@ func CreateAgents()[]contract.Agent{
 	return agents
 }
 
-func CreateAgent(topicId string) ([]contract.Agent, error){
+// agents 的生成器 用于topic
+func GenAgents(topicId string) ([]contract.Agent, error){
 	once.Do(call_block.InitConfs)
 	topic, err := feed_permission.GetOne(topicId)
 	if err != nil {
@@ -115,3 +116,10 @@ func CreateAgent(topicId string) ([]contract.Agent, error){
 	return agents, nil
 }
 
+
+func GenAgent(topicId int,  feedTyp string, topicIds []string) contract.Agent {
+	if f, ok := AgentMapping[feedTyp]; ok {
+		return f(topicId, topicIds)
+	}
+	return nil
+}

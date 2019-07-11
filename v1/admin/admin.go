@@ -17,6 +17,7 @@ import (
 func Mapping(prefix string, app *gin.Engine) {
 	admin := app.Group(prefix)
 	admin.POST("/topic", AddTopic)
+	admin.POST("/agnet", AddAgent)
 	admin.DELETE("/topic/:id", DelTopic)
 	admin.POST("/topic/conf", FeedTypeConfChange)
 	admin.POST("/topic/fids", TopicDataSourceChange)
@@ -94,7 +95,7 @@ func AddTopic(ctx *gin.Context) {
 		})
 		return
 	}
-	if agents, err := creater.CreateAgent(topicForm.TopicId); err != nil {
+	if agents, err := creater.GenAgents(topicForm.TopicId); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
 			"code":    1053,
 			"message": fmt.Sprintf("topic %s 未配置", topicForm.TopicId),
@@ -107,6 +108,39 @@ func AddTopic(ctx *gin.Context) {
 		"code":    0,
 		"message": "success",
 	})
+}
+
+type AgentForm struct {
+	TopicId int `form:"topicId" binding:"required"`
+	FeedType string `form:"feedType" binding:"required"`
+	TopicIds string `form:"topicIds" binding:"required"`
+}
+
+// 添加agent
+func AddAgent(ctx *gin.Context)  {
+	var agentForm AgentForm
+	if err := ctx.ShouldBind(&agentForm); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
+			"code":    1053,
+			"message": "参数传入有误",
+		})
+		return
+	}
+	topicIds := strings.Split(agentForm.TopicIds, ",")
+	if agent := creater.GenAgent(agentForm.TopicId, agentForm.FeedType, topicIds); agent == nil {
+		contract.InstanceFeedService().RegisterService(agent)
+		ctx.JSON(http.StatusOK, gin.H{
+			"code":    0,
+			"message": "success",
+		})
+		return
+	} else {
+		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
+			"code":    1053,
+			"message": "参数传入有误",
+		})
+		return
+	}
 }
 
 // 删除topic
