@@ -97,10 +97,10 @@ func AddAgent(ctx *gin.Context) error {
 	}
 	topicIds := strings.Split(agentForm.TopicIds, ",")
 	if err := api_func.AddAgentService(agentForm.TopicId, agentForm.FeedType, topicIds); err != nil {
+		return err
+	} else {
 		ctx.JSON(helper.Success())
 		return nil
-	} else {
-		return err
 	}
 }
 
