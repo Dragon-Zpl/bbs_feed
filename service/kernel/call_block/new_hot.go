@@ -18,8 +18,8 @@ const CALl_BLOCK_NEW_HOT = "call_block_new_hot"
 const CALl_BLOCK_NEW_HOT_TRAIT = "call_block_new_hot_trait"
 
 type NewHotRules struct {
-	Day        int `json:"day"`
-	CronExp    int `json:"cron_exp"` // 周期时间
+	Day     int `json:"day"`
+	CronExp int `json:"cron_exp"` // 周期时间
 }
 
 type NewHots struct {
@@ -31,7 +31,7 @@ type NewHots struct {
 	cancel context.CancelFunc
 	Ctx    context.Context
 
-	topicIds     []string // 数据源
+	topicIds []string // 数据源
 }
 
 func NewNewHots(topicId int, topicIds []string) *Hot {

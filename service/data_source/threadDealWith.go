@@ -10,12 +10,10 @@ import (
 	"strconv"
 )
 
-
 type RedisThread struct {
 	Thread forum_thread.Model     `json:"thread"`
 	Trait  service.CallBlockTrait `json:"trait"`
 }
-
 
 // 获取hot排序后的thread
 func GetHotSortThread(fids []int, day, views, replys int) []RedisThread {
@@ -53,12 +51,11 @@ func GetEssenceSortThread(fids []int, day int) []RedisThread {
 	return redisThreads
 }
 
-
 // 获取今日导读排序后的thread
 func GetTodayIntroSortThread(fids []int, day int) []RedisThread {
 	var (
-		todayIntroThreads   TodayIntroThread
-		redisThreads []RedisThread
+		todayIntroThreads TodayIntroThread
+		redisThreads      []RedisThread
 	)
 	todayIntroThreads = forum_thread.GetHotThreads(fids, day, 0, 0)
 	redisThreads = make([]RedisThread, 0, len(todayIntroThreads))
@@ -75,8 +72,8 @@ func GetTodayIntroSortThread(fids []int, day int) []RedisThread {
 // 获取今日导读排序后的thread
 func GetNewHotSortThread(fids []int, day int) []RedisThread {
 	var (
-		newHotThreads   NewHotThread
-		redisThreads []RedisThread
+		newHotThreads NewHotThread
+		redisThreads  []RedisThread
 	)
 	newHotThreads = forum_thread.GetHotThreads(fids, day, 0, 0)
 	redisThreads = make([]RedisThread, 0, len(newHotThreads))
@@ -104,8 +101,6 @@ func DelRedisThreadInfo(tids []int, key, traitKey string) {
 		}
 	}
 }
-
-
 
 func GetThreadByTids(tids []int) []RedisThread {
 	var redisThreads []RedisThread

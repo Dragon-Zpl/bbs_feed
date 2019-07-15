@@ -59,7 +59,7 @@ func (this *Essence) Init() {
 	this.Ctx = ctx
 	this.cancel = cancel
 	this.essenceRules = essence
-	this.threadReport.RemoveReportThread(this.remover)
+	go this.threadReport.RemoveReportThread(this.remover)
 }
 
 func (this *Essence) ChangeConf(conf string) error {

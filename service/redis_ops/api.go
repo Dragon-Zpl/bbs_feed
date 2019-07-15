@@ -44,7 +44,6 @@ func DelZAdd(key string, member string) {
 	}
 }
 
-
 func KeyExist(key string) bool {
 	count, _ := boot.InstanceRedisCli(boot.CACHE).Exists(key).Result()
 	return count == 1

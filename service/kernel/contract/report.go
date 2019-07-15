@@ -8,7 +8,6 @@ import (
 	举报
 */
 
-
 // 帖子举报
 type ThreadReport interface {
 	RemoveReportThread(func([]int))
@@ -21,7 +20,6 @@ type UserReport interface {
 	AcceptSign([]int)
 }
 
-
 type ThreadRep struct {
 	reportChan chan []int
 }
@@ -29,7 +27,7 @@ type ThreadRep struct {
 func (this *ThreadRep) RemoveReportThread(f func([]int)) {
 	for {
 		select {
-		case tids := <- this.reportChan:
+		case tids := <-this.reportChan:
 			f(tids)
 		}
 	}
@@ -39,21 +37,18 @@ func (this *ThreadRep) AcceptSign(tids []int) {
 	this.reportChan <- tids
 }
 
-func CreateThreadReport() ThreadReport{
+func CreateThreadReport() ThreadReport {
 	return &ThreadRep{
 		reportChan: make(chan []int, 10),
 	}
 }
 
-
-
-
 type ReportThreadConf struct {
-	ReportCount int  `form:"reportCount" binding:"required"`
+	ReportCount int `form:"reportCount" binding:"required"`
 }
 
 type ReportUserConf struct {
-	ReportCount int  `form:"reportCount" binding:"required"`
+	ReportCount int `form:"reportCount" binding:"required"`
 }
 
 type ThreadReportCheckEr struct {
@@ -74,7 +69,9 @@ func (this *ThreadReportCheckEr) CheckThreadReport() {
 			}
 
 			t.Reset(5 * time.Minute)
+
 		case tids := <- this.ReportTids:
+
 			this.seedReportTids(tids)
 		}
 	}
@@ -90,13 +87,12 @@ func (this *ThreadReportCheckEr) seedReportTids(tids []int) {
 	this.FeedService.Mu.Unlock()
 }
 
-
 // 处理举报贴接口
 func (this *ThreadReportCheckEr) AcceptReportTids(tids []int) {
 	this.ReportTids <- tids
 }
 
-func (this *ThreadReportCheckEr) GetReportTids()(tids []int) {
+func (this *ThreadReportCheckEr) GetReportTids() (tids []int) {
 	// todo 从配置 读出举报帖
 	return
 }
@@ -105,15 +101,11 @@ func (this *ThreadReportCheckEr) ChangeConf(conf ReportThreadConf) {
 	this.ReConf = conf
 }
 
-
-
 type UserReportCheckEr struct {
 	FeedService *FeedService
 	ReConf ReportUserConf
 	ReportUids chan []int
 }
-
-
 
 
 func (this *UserReportCheckEr) CheckUserReport() {
@@ -144,7 +136,7 @@ func (this *UserReportCheckEr) seedReportUids(tids []int) {
 	this.FeedService.Mu.Unlock()
 }
 
-func (this *UserReportCheckEr) GetReportUids()(tids []int) {
+func (this *UserReportCheckEr) GetReportUids() (tids []int) {
 	// todo 从配置 读出举报帖
 	return
 }
@@ -157,7 +149,3 @@ func (this *UserReportCheckEr) ChangeConf(conf ReportUserConf) {
 func (this *UserReportCheckEr) AcceptReportUids(uids []int) {
 	this.ReportUids <- uids
 }
-
-
-
-

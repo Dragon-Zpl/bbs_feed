@@ -26,7 +26,7 @@ func (m *Model) TableName() string {
 }
 
 func GetAll() []*Model {
-	o := boot.GetMasterMysql()
+	o := boot.GetSlaveMySql()
 	qs := o.QueryTable((*Model)(nil))
 	m := make([]*Model, 0)
 	qs.Filter("is_use", 1).All(&m)

@@ -15,15 +15,16 @@ import (
 */
 
 type AgentGen func(int, []string) contract.Agent
+
 var once sync.Once
 
-var AgentMapping = map[string]AgentGen {
-	"hot_thread": HotThread(),
-	"essence": Essence(),
-	"new_hot": NewHot(),
+var AgentMapping = map[string]AgentGen{
+	"hot_thread":         HotThread(),
+	"essence":            Essence(),
+	"new_hot":            NewHot(),
 	"today_introduction": TodayIntroduction(),
-	"week_popularity": WeekContribution(),
-	"week_contribution": WeekContribution(),
+	"week_popularity":    WeekContribution(),
+	"week_contribution":  WeekContribution(),
 }
 
 // 热门贴
@@ -54,13 +55,11 @@ func TodayIntroduction() AgentGen {
 	}
 }
 
-
 func WeekPopularity() AgentGen {
 	return func(topicId int, topicIds []string) contract.Agent {
 		return nil
 	}
 }
-
 
 func WeekContribution() AgentGen {
 	return func(topicId int, topicIds []string) contract.Agent {
@@ -69,7 +68,7 @@ func WeekContribution() AgentGen {
 }
 
 // agents 的生成器 用于启动时
-func InitGenAgents()[]contract.Agent{
+func InitGenAgents() []contract.Agent {
 	once.Do(call_block.InitConfs)
 	topics := feed_permission.GetAll()
 	agents := make([]contract.Agent, 0)
@@ -94,7 +93,7 @@ func InitGenAgents()[]contract.Agent{
 }
 
 // agents 的生成器 用于topic
-func GenAgents(topicId string) ([]contract.Agent, error){
+func GenAgents(topicId string) ([]contract.Agent, error) {
 	once.Do(call_block.InitConfs)
 	topic, err := feed_permission.GetOne(topicId)
 	if err != nil {
@@ -118,8 +117,7 @@ func GenAgents(topicId string) ([]contract.Agent, error){
 	return agents, nil
 }
 
-
-func GenAgent(topicId int,  feedTyp string, topicIds []string) contract.Agent {
+func GenAgent(topicId int, feedTyp string, topicIds []string) contract.Agent {
 	topicIds = data_source.CheckAngGetCurTopics(topicIds)
 
 	if f, ok := AgentMapping[feedTyp]; ok {

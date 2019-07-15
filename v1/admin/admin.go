@@ -111,13 +111,13 @@ func AddTopic(ctx *gin.Context) {
 }
 
 type AgentForm struct {
-	TopicId int `form:"topicId" binding:"required"`
+	TopicId  int    `form:"topicId" binding:"required"`
 	FeedType string `form:"feedType" binding:"required"`
 	TopicIds string `form:"topicIds" binding:"required"`
 }
 
 // 添加agent
-func AddAgent(ctx *gin.Context)  {
+func AddAgent(ctx *gin.Context) {
 	var agentForm AgentForm
 	if err := ctx.ShouldBind(&agentForm); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
@@ -275,7 +275,7 @@ type TraitFrom struct {
 	Id       string                 `form:"id"`
 	TopicId  string                 `form:"topicId" binding:"required"`
 	FeedType string                 `form:"feedType" binding:"required"`
-	Exp      int `form:"exp" binding:"required"`
+	Exp      int                    `form:"exp" binding:"required"`
 	Trait    service.CallBlockTrait `form:"trait"`
 }
 
@@ -302,7 +302,7 @@ func AddCallBlockTrait(ctx *gin.Context) {
 			"message": "参数传入有误",
 		})
 		return
-		redis_ops.HSet(redisKey, traitFrom.Id, string(traitBytes), time.Duration(traitFrom.Exp) * time.Hour)
+		redis_ops.HSet(redisKey, traitFrom.Id, string(traitBytes), time.Duration(traitFrom.Exp)*time.Hour)
 	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    0,
