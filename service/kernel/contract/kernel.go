@@ -9,31 +9,26 @@ import (
 	"sync"
 )
 
-
-
-
 type Agent interface {
 	Init()
 	Start()
 	Stop()
 	ChangeConf(string) error // 修改配置
-	GetName()string
+	GetName() string
 	GetThis() interface{}
-	ChangeFids([]string)  // 修改数据源
-	AddTrait(id string, trait service.CallBlockTrait)  // 添加额外信息
-	Remover([]int)  // 删除agents redis 数据
+	ChangeFids([]string)                              // 修改数据源
+	AddTrait(id string, trait service.CallBlockTrait) // 添加额外信息
+	Remover([]int)                                    // 删除agents redis 数据
 }
 
 //var FeedService *feedService
 
 type FeedService struct {
 	Agents map[string]Agent
-	Mu *sync.Mutex
+	Mu     *sync.Mutex
 }
 
-
-
-func (this *FeedService) RegisterService(agents ...Agent){
+func (this *FeedService) RegisterService(agents ...Agent) {
 	this.Mu.Lock()
 	defer this.Mu.Unlock()
 	for _, agent := range agents {
@@ -62,7 +57,7 @@ func (this *FeedService) StartService() {
 }
 
 func (this *FeedService) StopService() {
-	for _, agent := range this.Agents{
+	for _, agent := range this.Agents {
 		agent.Stop()
 	}
 }
@@ -96,7 +91,6 @@ func (this *FeedService) ChangeConf(typ string, conf string) error {
 	return nil
 }
 
-
 func (this *FeedService) ChangeFids(topicId string, topicIds []string) {
 	for _, agent := range this.Agents {
 		if strings.Split(agent.GetName(), service.Separator)[0] == topicId {
@@ -118,7 +112,7 @@ var feedService *FeedService
 
 func NewFeedService(agents ...Agent) *FeedService {
 	agentsMap := make(map[string]Agent)
-	for i := 0; i < len(agents); i ++ {
+	for i := 0; i < len(agents); i++ {
 		agentsMap[agents[i].GetName()] = agents[i]
 	}
 	return &FeedService{
@@ -131,18 +125,8 @@ func InstanceFeedService() *FeedService {
 	return feedService
 }
 
-
 func InitFeedService() {
 	feedService = NewFeedService(creater.InitGenAgents()...)
 	feedService.InitService()
 	feedService.StartService()
 }
-
-
-
-
-
-
-
-
-
