@@ -2,7 +2,6 @@ package contract
 
 import (
 	"bbs_feed/service"
-	"bbs_feed/service/kernel/creater"
 	"errors"
 	"fmt"
 	"strings"
@@ -114,29 +113,7 @@ func (this *FeedService) Remove(agentName string, ids []int) error {
 	}
 }
 
-var feedService *FeedService
 
-func NewFeedService(agents ...Agent) *FeedService {
-	agentsMap := make(map[string]Agent)
-	for i := 0; i < len(agents); i ++ {
-		agentsMap[agents[i].GetName()] = agents[i]
-	}
-	return &FeedService{
-		Agents: agentsMap,
-		Mu:     new(sync.Mutex),
-	}
-}
-
-func InstanceFeedService() *FeedService {
-	return feedService
-}
-
-
-func InitFeedService() {
-	feedService = NewFeedService(creater.InitGenAgents()...)
-	feedService.InitService()
-	feedService.StartService()
-}
 
 
 

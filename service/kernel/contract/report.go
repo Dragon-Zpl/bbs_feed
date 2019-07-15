@@ -57,21 +57,11 @@ type ReportUserConf struct {
 }
 
 type ThreadReportCheckEr struct {
-	feedService *FeedService
-	reConf ReportThreadConf
-	reportTids chan []int
+	FeedService *FeedService
+	ReConf ReportThreadConf
+	ReportTids chan []int
 }
 
-var ThreadReportCheck *ThreadReportCheckEr
-
-func NewThreadReportCheckEr() {
-	ThreadReportCheck = &ThreadReportCheckEr{
-		feedService: feedService,
-		reConf:      ReportThreadConf{},
-		reportTids:  make(chan []int, 10),
-	}
-	go ThreadReportCheck.CheckThreadReport()
-}
 
 func (this *ThreadReportCheckEr) CheckThreadReport() {
 	t := time.NewTimer(5 * time.Minute)
@@ -84,26 +74,26 @@ func (this *ThreadReportCheckEr) CheckThreadReport() {
 			}
 
 			t.Reset(5 * time.Minute)
-		case tids := <- this.reportTids:
+		case tids := <- this.ReportTids:
 			this.seedReportTids(tids)
 		}
 	}
 }
 
 func (this *ThreadReportCheckEr) seedReportTids(tids []int) {
-	this.feedService.Mu.Lock()
-	for _, agent := range this.feedService.Agents {
+	this.FeedService.Mu.Lock()
+	for _, agent := range this.FeedService.Agents {
 		if _, ok := agent.GetThis().(ThreadReport); ok {
 			agent.(ThreadReport).AcceptSign(tids)
 		}
 	}
-	this.feedService.Mu.Unlock()
+	this.FeedService.Mu.Unlock()
 }
 
 
 // 处理举报贴接口
 func (this *ThreadReportCheckEr) AcceptReportTids(tids []int) {
-	this.reportTids <- tids
+	this.ReportTids <- tids
 }
 
 func (this *ThreadReportCheckEr) GetReportTids()(tids []int) {
@@ -112,28 +102,18 @@ func (this *ThreadReportCheckEr) GetReportTids()(tids []int) {
 }
 
 func (this *ThreadReportCheckEr) ChangeConf(conf ReportThreadConf) {
-	this.reConf = conf
+	this.ReConf = conf
 }
 
 
 
 type UserReportCheckEr struct {
-	feedService *FeedService
-	reConf ReportUserConf
-	reportUids chan []int
+	FeedService *FeedService
+	ReConf ReportUserConf
+	ReportUids chan []int
 }
 
-var UserReportCheck *UserReportCheckEr
 
-
-func NewUserReportCheck() {
-	UserReportCheck = &UserReportCheckEr{
-		feedService: feedService,
-		reConf:      ReportUserConf{},
-		reportUids:  make(chan []int, 10),
-	}
-	go UserReportCheck.CheckUserReport()
-}
 
 
 func (this *UserReportCheckEr) CheckUserReport() {
@@ -147,7 +127,7 @@ func (this *UserReportCheckEr) CheckUserReport() {
 			}
 
 			t.Reset(5 * time.Minute)
-		case uids := <-this.reportUids:
+		case uids := <-this.ReportUids:
 			this.seedReportUids(uids)
 		}
 
@@ -155,13 +135,13 @@ func (this *UserReportCheckEr) CheckUserReport() {
 }
 
 func (this *UserReportCheckEr) seedReportUids(tids []int) {
-	this.feedService.Mu.Lock()
-	for _, agent := range this.feedService.Agents {
+	this.FeedService.Mu.Lock()
+	for _, agent := range this.FeedService.Agents {
 		if _, ok := agent.GetThis().(UserReport); ok {
 			agent.(UserReport).AcceptSign(tids)
 		}
 	}
-	this.feedService.Mu.Unlock()
+	this.FeedService.Mu.Unlock()
 }
 
 func (this *UserReportCheckEr) GetReportUids()(tids []int) {
@@ -170,12 +150,12 @@ func (this *UserReportCheckEr) GetReportUids()(tids []int) {
 }
 
 func (this *UserReportCheckEr) ChangeConf(conf ReportUserConf) {
-	this.reConf = conf
+	this.ReConf = conf
 }
 
 // 处理举报贴接口
 func (this *UserReportCheckEr) AcceptReportUids(uids []int) {
-	this.reportUids <- uids
+	this.ReportUids <- uids
 }
 
 

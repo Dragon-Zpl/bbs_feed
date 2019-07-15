@@ -45,7 +45,7 @@ func FeedTypeConfChange(ctx *gin.Context) {
 		})
 		return
 	}
-	if err := contract.InstanceFeedService().ChangeConf(feedTypeConfForm.FeedType, feedTypeConfForm.Conf); err != nil {
+	if err := creater.InstanceFeedService().ChangeConf(feedTypeConfForm.FeedType, feedTypeConfForm.Conf); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
 			"code":    1053,
 			"message": "配置传入有误",
@@ -74,7 +74,7 @@ func TopicDataSourceChange(ctx *gin.Context) {
 		return
 	}
 	topicIds := strings.Split(topicDataSourceForm.TopicIds, ",")
-	contract.InstanceFeedService().ChangeFids(topicDataSourceForm.TopicId, topicIds)
+	creater.InstanceFeedService().ChangeFids(topicDataSourceForm.TopicId, topicIds)
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
@@ -102,7 +102,7 @@ func AddTopic(ctx *gin.Context) {
 		})
 		return
 	} else {
-		contract.InstanceFeedService().RegisterService(agents...)
+		creater.InstanceFeedService().RegisterService(agents...)
 	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -128,7 +128,7 @@ func AddAgent(ctx *gin.Context)  {
 	}
 	topicIds := strings.Split(agentForm.TopicIds, ",")
 	if agent := creater.GenAgent(agentForm.TopicId, agentForm.FeedType, topicIds); agent == nil {
-		contract.InstanceFeedService().RegisterService(agent)
+		creater.InstanceFeedService().RegisterService(agent)
 		ctx.JSON(http.StatusOK, gin.H{
 			"code":    0,
 			"message": "success",
@@ -153,7 +153,7 @@ func DelTopic(ctx *gin.Context) {
 		})
 		return
 	}
-	contract.InstanceFeedService().RemovePusher(topicForm.TopicId)
+	creater.InstanceFeedService().RemovePusher(topicForm.TopicId)
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
@@ -170,7 +170,7 @@ func ChangeThreadReportConf(ctx *gin.Context) {
 		})
 		return
 	}
-	contract.ThreadReportCheck.ChangeConf(reportThreadConf)
+	creater.ThreadReportCheck.ChangeConf(reportThreadConf)
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
@@ -193,7 +193,7 @@ func ThreadReport(ctx *gin.Context) {
 	}
 	tids := strings.Split(threadReportForm.ThreadIds, ",")
 	tidsInt := helper.ArrayStrToInt(tids)
-	contract.ThreadReportCheck.AcceptReportTids(tidsInt)
+	creater.ThreadReportCheck.AcceptReportTids(tidsInt)
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
@@ -210,7 +210,7 @@ func ChangeUserReportConf(ctx *gin.Context) {
 		})
 		return
 	}
-	contract.UserReportCheck.ChangeConf(reportUserConf)
+	creater.UserReportCheck.ChangeConf(reportUserConf)
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
@@ -233,7 +233,7 @@ func UserReport(ctx *gin.Context) {
 	}
 	uids := strings.Split(userReportForm.UserIds, ",")
 	uidInts := helper.ArrayStrToInt(uids)
-	contract.UserReportCheck.AcceptReportUids(uidInts)
+	creater.UserReportCheck.AcceptReportUids(uidInts)
 	ctx.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
@@ -258,7 +258,7 @@ func DelTopicData(ctx *gin.Context) {
 	agentName := fmt.Sprintf("%s%s%s", delTopicFrom.TopicId, service.Separator, delTopicFrom.FeedType)
 	ids := strings.Split(delTopicFrom.Ids, ",")
 	idsInt := helper.ArrayStrToInt(ids)
-	if err := contract.InstanceFeedService().Remove(agentName, idsInt); err != nil {
+	if err := creater.InstanceFeedService().Remove(agentName, idsInt); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
 			"code":    1053,
 			"message": err.Error(),
