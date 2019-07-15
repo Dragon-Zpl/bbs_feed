@@ -18,8 +18,8 @@ const CALl_BLOCK_TODAY_INTRO = "call_block_today_introduction"
 const CALl_BLOCK_TODAY_INTRO_TRAIT = "call_block_today_introduction_trait"
 
 type IntroRules struct {
-	Day        int `json:"day"`
-	CronExp    int `json:"cron_exp"` // 周期时间
+	Day     int `json:"day"`
+	CronExp int `json:"cron_exp"` // 周期时间
 }
 
 type TodayIntro struct {
@@ -31,7 +31,7 @@ type TodayIntro struct {
 	cancel context.CancelFunc
 	Ctx    context.Context
 
-	topicIds     []string // 数据源
+	topicIds []string // 数据源
 }
 
 func NewTodayIntro(topicId int, topicIds []string) *Hot {

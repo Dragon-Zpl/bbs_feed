@@ -25,7 +25,7 @@ func (m *Model) TableName() string {
 }
 
 func GetFids(topicIds []string) []int {
-	o := boot.GetMasterMysql()
+	o := boot.GetSlaveMySql()
 	qs := o.QueryTable((*Model)(nil))
 	ms := make([]*Model, 0)
 	res := make([]int, 0)

@@ -38,7 +38,7 @@ func (m *Model) TableName() string {
 }
 
 func GetHotThreads(fids []int, day, views, replys int) []*Model {
-	o := boot.GetMasterMysql()
+	o := boot.GetSlaveMySql()
 	qs := o.QueryTable((*Model)(nil))
 	ms := make([]*Model, 0)
 	qs.Filter("fid__in", fids).Filter("dateline__gte", helper.PreNDayTime(day)).Filter("views__gte", views).Filter("replies__gte", replys).Limit(400).All(&ms)
@@ -46,7 +46,7 @@ func GetHotThreads(fids []int, day, views, replys int) []*Model {
 }
 
 func GetByTids(tids []int) []*Model {
-	o := boot.GetMasterMysql()
+	o := boot.GetSlaveMySql()
 	qs := o.QueryTable((*Model)(nil))
 	ms := make([]*Model, 0)
 	qs.Filter("tid__in", tids).All(&ms)
@@ -54,7 +54,7 @@ func GetByTids(tids []int) []*Model {
 }
 
 func GetEssenceThreads(fids []int, day int) []*Model {
-	o := boot.GetMasterMysql()
+	o := boot.GetSlaveMySql()
 	qs := o.QueryTable((*Model)(nil))
 	ms := make([]*Model, 0)
 	qs.Filter("digest", 1).Filter("fid__in", fids).Filter("dateline__gte", helper.PreNDayTime(day)).All(&ms)

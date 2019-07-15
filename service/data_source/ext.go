@@ -15,10 +15,9 @@ func GetAllTopics() []string {
 	return fids
 }
 
-
 // 检查是否需要全局的fids  ["0"] 代表全局
 func CheckIsGetAllTopics(inTopics []string) bool {
-	if len(inTopics) == 1 && inTopics[0] == "0"{
+	if len(inTopics) == 1 && inTopics[0] == "0" {
 		return true
 	}
 	return false
