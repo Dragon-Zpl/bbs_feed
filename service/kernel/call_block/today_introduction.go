@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+//今日导读
+
 const CALl_BLOCK_TODAY_INTRO = "call_block_today_introduction"
 const CALl_BLOCK_TODAY_INTRO_TRAIT = "call_block_today_introduction_trait"
 

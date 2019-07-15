@@ -19,12 +19,12 @@ type AgentGen func(int, []string) contract.Agent
 var once sync.Once
 
 var AgentMapping = map[string]AgentGen{
-	"hot_thread":         HotThread(),
-	"essence":            Essence(),
-	"new_hot":            NewHot(),
-	"today_introduction": TodayIntroduction(),
-	"week_popularity":    WeekPopularity(),
-	"week_contribution":  WeekContribution(),
+	"hotThread":         HotThread(),
+	"essence":           Essence(),
+	"newHot":            NewHot(),
+	"todayIntroduction": TodayIntroduction(),
+	"weekPopularity":    WeekPopularity(),
+	"weekContribution":  WeekContribution(),
 }
 
 // 热门贴

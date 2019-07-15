@@ -1,8 +1,5 @@
 package call_block
 
-/*
- 热门帖子调用块
-*/
 import (
 	"bbs_feed/boot"
 	"bbs_feed/model/topic_fid_relation"
@@ -17,11 +14,13 @@ import (
 	"time"
 )
 
+//热帖
+
 const CALl_BLOCK_HOT_THREAD = "call_block_hot_thread"
 const CALl_BLOCK_HOT_THREAD_TRAIT = "call_block_hot_thread_trait"
 
 type HotRules struct {
-	Day        int `json:"day"`
+	Day        int `json:"day"` //几天内的数据
 	ViewCount  int `json:"viewCount"`
 	ReplyCount int `json:"replyCount"`
 	CronExp    int `json:"cronExp"` // 周期时间
@@ -83,12 +82,7 @@ func (this *Hot) Init() {
 	ctx, cancel := context.WithCancel(context.Background())
 	this.Ctx = ctx
 	this.cancel = cancel
-	this.hotRules = HotRules{
-		Day:        7,
-		ViewCount:  2000,
-		ReplyCount: 30,
-		CronExp:    10,
-	}
+	this.hotRules = hot
 	go this.threadReport.RemoveReportThread(this.remover) // 开启举报帖自检
 	//this.hotRules = service_confs.Hot
 }

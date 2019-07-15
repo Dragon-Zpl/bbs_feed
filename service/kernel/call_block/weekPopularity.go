@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+//周人气榜
+
 type WeekPopularityRule struct {
 	CronExp time.Duration `json:"cronExp"` // 周期时间
 }
@@ -64,12 +66,12 @@ func (this *WeekPopularity) ChangeConf(conf interface{}) {
 }
 
 func (this *WeekPopularity) Start() {
-	t := time.NewTimer(this.weekPopularityRule.cronExp)
+	t := time.NewTimer(this.weekPopularityRule.CronExp)
 	for {
 		select {
 		case <-t.C:
 			// todo  根据配置 写redis数据
-			t.Reset(this.weekPopularityRule.cronExp)
+			t.Reset(this.weekPopularityRule.CronExp)
 		case <-this.Ctx.Done():
 			return
 		}

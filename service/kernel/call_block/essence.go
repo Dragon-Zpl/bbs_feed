@@ -1,7 +1,5 @@
 package call_block
 
-/* 精华调用块*/
-
 import (
 	"bbs_feed/boot"
 	"bbs_feed/model/topic_fid_relation"
@@ -16,13 +14,14 @@ import (
 	"time"
 )
 
+//精华贴
+
 const CALl_BLOCK_ESSENCE_THREAD = "call_block_essence"
 const CALl_BLOCK_ESSENCE_THREAD_TRAIT = "call_block_essence_trait"
 
 type EssenceRules struct {
-	CronExp      int           // 周期时间 min
-	criticalTime time.Duration // 临界时间
-	Day          int
+	CronExp int `json:"cronExp"` // 周期时间 min
+	Day     int `json:"day"`
 }
 
 type Essence struct {
@@ -40,6 +39,7 @@ type Essence struct {
 
 func NewEssence(topicId int, topicIds []string) *Essence {
 	return &Essence{
+		topicId:      topicId,
 		name:         fmt.Sprintf("%d%s%s", topicId, service.Separator, service.ESSENCE),
 		topicIds:     topicIds,
 		threadReport: contract.CreateThreadReport(),

@@ -15,14 +15,14 @@ func init() {
 }
 
 type Model struct {
-	Tid          int    `orm:"pk;default(0);column(tid)"`
-	Fid          int    `orm:"default(0);column(fid)"`
-	Author       string `orm:"size(15);default('');column(author)"`
-	AuthorId     int    `orm:"default(0);column(authorid)"`
-	Subject      string `orm:"size(120);default('');column(subject)"`
-	Dateline     int    `orm:"default(0);column(dateline)" json:"_"`
+	Tid          int    `orm:"pk;default(0);column(tid)" json:"tid"`
+	Fid          int    `orm:"default(0);column(fid)" json:"fid"`
+	Author       string `orm:"size(15);default('');column(author)" json:"author"`
+	AuthorId     int    `orm:"default(0);column(authorid)" json:"authorId"`
+	Subject      string `orm:"size(120);default('');column(subject)" json:"subject"`
+	Dateline     int    `orm:"default(0);column(dateline)" json:"dateline"`
 	LastPost     int    `orm:"default(0);column(lastpost)" json:"_"`
-	LastPoster   string `orm:"default('');column(lastposter)"`
+	LastPoster   string `orm:"default('');column(lastposter)" json:"_"`
 	Views        int    `orm:"default(0);column(views)" json:"_"`
 	Replies      int    `orm:"default(0);column(replies)" json:"_"`
 	DisplayOrder int8   `orm:"default(0);column(displayorder)" json:"_"`

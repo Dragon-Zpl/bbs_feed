@@ -20,8 +20,8 @@ type Model struct {
 	TodayIntroduction int    `orm:"column(today_introduction)" json:"todayIntroduction"`
 	WeekPopularity    int    `orm:"column(week_popularity)" json:"weekPopularity"`
 	WeekContribution  int    `orm:"column(week_contribution)" json:"weekContribution"`
-	TopicIds          string `orm:"column(topicIds)"`
-	IsUse             int    `orm:"column(isUse)"`
+	TopicIds          string `orm:"column(topic_ids)"`
+	IsUse             int    `orm:"column(is_use)"`
 }
 
 // 实现表名的接口

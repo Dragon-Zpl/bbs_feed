@@ -1,14 +1,13 @@
 package call_block
 
-/*
-	贡献榜
-*/
 import (
 	"bbs_feed/service"
 	"context"
 	"fmt"
 	"time"
 )
+
+//贡献榜
 
 type ContributionRules struct {
 	cronExp time.Duration // 周期时间

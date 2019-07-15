@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+//最新热帖
+
 const CALl_BLOCK_NEW_HOT = "call_block_new_hot"
 const CALl_BLOCK_NEW_HOT_TRAIT = "call_block_new_hot_trait"
 
