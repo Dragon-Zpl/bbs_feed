@@ -1,13 +1,11 @@
 package data_source
 
 import (
-	"bbs_feed/boot"
 	"bbs_feed/model/forum_thread"
 	"bbs_feed/service"
 	"bbs_feed/service/redis_ops"
 	"encoding/json"
 	"sort"
-	"strconv"
 )
 
 type RedisThread struct {
@@ -90,12 +88,12 @@ func GetNewHotSortThread(fids []int, day int) []RedisThread {
 func DelRedisThreadInfo(tids []int, key, traitKey string) {
 	threads := GetThreadByTids(tids)
 	for _, thread := range threads {
-		if trait, err := boot.InstanceRedisCli(boot.CACHE).HGet(traitKey, strconv.Itoa(thread.Thread.Tid)).Result(); err == nil {
-			var callBlockTrait service.CallBlockTrait
-			if err = json.Unmarshal([]byte(trait), &callBlockTrait); err == nil {
-				thread.Trait = callBlockTrait
-			}
-		}
+		//if trait, err := boot.InstanceRedisCli(boot.CACHE).HGet(traitKey, strconv.Itoa(thread.Thread.Tid)).Result(); err == nil {
+		//	var callBlockTrait service.CallBlockTrait
+		//	if err = json.Unmarshal([]byte(trait), &callBlockTrait); err == nil {
+		//		thread.Trait = callBlockTrait
+		//	}
+		//}
 		if threadBytes, err := json.Marshal(thread); err == nil {
 			redis_ops.DelZAdd(key, string(threadBytes))
 		}

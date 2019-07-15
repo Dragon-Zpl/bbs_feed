@@ -40,7 +40,7 @@ type Essence struct {
 
 func NewEssence(topicId int, topicIds []string) *Essence {
 	return &Essence{
-		name:         fmt.Sprintf("%d-%s", topicId, service.ESSENCE),
+		name:         fmt.Sprintf("%d%s%s", topicId, service.Separator, service.ESSENCE),
 		topicIds:     topicIds,
 		threadReport: contract.CreateThreadReport(),
 	}

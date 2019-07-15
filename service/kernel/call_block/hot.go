@@ -22,9 +22,9 @@ const CALl_BLOCK_HOT_THREAD_TRAIT = "call_block_hot_thread_trait"
 
 type HotRules struct {
 	Day        int `json:"day"`
-	ViewCount  int `json:"view_count"`
-	ReplyCount int `json:"reply_count"`
-	CronExp    int `json:"cron_exp"` // 周期时间
+	ViewCount  int `json:"viewCount"`
+	ReplyCount int `json:"replyCount"`
+	CronExp    int `json:"cronExp"` // 周期时间
 }
 
 type Hot struct {

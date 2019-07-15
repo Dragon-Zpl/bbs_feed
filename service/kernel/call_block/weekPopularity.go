@@ -8,7 +8,7 @@ import (
 )
 
 type WeekPopularityRule struct {
-	cronExp time.Duration // 周期时间
+	CronExp time.Duration `json:"cronExp"` // 周期时间
 }
 
 type WeekPopularity struct {
@@ -21,12 +21,11 @@ type WeekPopularity struct {
 	Ctx    context.Context
 
 	topicIds []string // 数据源
-
 }
 
 func NewWeekPopularity(topicId int, topicIds []string) *WeekPopularity {
 	return &WeekPopularity{
-		name:     fmt.Sprintf("%d-%s", topicId, service.WEEK_POPULARITY),
+		name:     fmt.Sprintf("%d%s%s", topicId, service.Separator, service.WEEK_POPULARITY),
 		topicIds: topicIds,
 	}
 }

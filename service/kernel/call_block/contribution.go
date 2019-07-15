@@ -28,7 +28,7 @@ type Contribution struct {
 
 func NewContribution(topicId int, topicIds []string) *Contribution {
 	return &Contribution{
-		name:     fmt.Sprintf("%d-%s", topicId, service.CONTRIBUTION),
+		name:     fmt.Sprintf("%d%s%s", topicId, service.Separator, service.CONTRIBUTION),
 		topicIds: topicIds,
 	}
 }

@@ -17,7 +17,7 @@ type Model struct {
 	Id    int    `orm:"pk;column(id)" json:"id"`
 	Name  string `orm:"column(name)" json:"name"`
 	Conf  string `orm:"column(conf)" json:"conf"`
-	IsUse int    `orm:"column(is_use)" json:"is_use"`
+	IsUse int    `orm:"column(is_use)" json:"isUse"`
 }
 
 // 实现表名的接口

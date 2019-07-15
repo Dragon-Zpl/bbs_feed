@@ -24,7 +24,7 @@ func CheckIsGetAllTopics(inTopics []string) bool {
 }
 
 // 获取正确的topics
-func CheckAngGetCurTopics(inTopics []string) []string {
+func CheckAndGetCurTopics(inTopics []string) []string {
 	if CheckIsGetAllTopics(inTopics) {
 		return GetAllTopics()
 	} else {

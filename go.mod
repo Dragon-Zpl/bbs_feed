@@ -9,6 +9,7 @@ require (
 	github.com/go-ini/ini v1.42.0
 	github.com/go-redis/redis v6.15.2+incompatible
 	github.com/go-sql-driver/mysql v1.4.1
+	github.com/json-iterator/go v1.1.6
 	go.etcd.io/etcd v3.3.13+incompatible
 	google.golang.org/appengine v1.6.0 // indirect
 	google.golang.org/grpc v1.22.0 // indirect

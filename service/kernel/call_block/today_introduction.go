@@ -19,7 +19,7 @@ const CALl_BLOCK_TODAY_INTRO_TRAIT = "call_block_today_introduction_trait"
 
 type IntroRules struct {
 	Day     int `json:"day"`
-	CronExp int `json:"cron_exp"` // 周期时间
+	CronExp int `json:"cronExp"` // 周期时间
 }
 
 type TodayIntro struct {
