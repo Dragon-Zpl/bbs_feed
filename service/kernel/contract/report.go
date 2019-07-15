@@ -53,10 +53,9 @@ type ReportUserConf struct {
 
 type ThreadReportCheckEr struct {
 	FeedService *FeedService
-	ReConf ReportThreadConf
-	ReportTids chan []int
+	ReConf      ReportThreadConf
+	ReportTids  chan []int
 }
-
 
 func (this *ThreadReportCheckEr) CheckThreadReport() {
 	t := time.NewTimer(5 * time.Minute)
@@ -67,11 +66,8 @@ func (this *ThreadReportCheckEr) CheckThreadReport() {
 			if len(tids) > 0 {
 				this.seedReportTids(tids)
 			}
-
 			t.Reset(5 * time.Minute)
-
-		case tids := <- this.ReportTids:
-
+		case tids := <-this.ReportTids:
 			this.seedReportTids(tids)
 		}
 	}
@@ -103,10 +99,9 @@ func (this *ThreadReportCheckEr) ChangeConf(conf ReportThreadConf) {
 
 type UserReportCheckEr struct {
 	FeedService *FeedService
-	ReConf ReportUserConf
-	ReportUids chan []int
+	ReConf      ReportUserConf
+	ReportUids  chan []int
 }
-
 
 func (this *UserReportCheckEr) CheckUserReport() {
 	t := time.NewTimer(5 * time.Minute)

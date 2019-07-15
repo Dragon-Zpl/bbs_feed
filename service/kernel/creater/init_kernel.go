@@ -9,7 +9,7 @@ var feedService *contract.FeedService
 
 func NewFeedService(agents ...contract.Agent) *contract.FeedService {
 	agentsMap := make(map[string]contract.Agent)
-	for i := 0; i < len(agents); i ++ {
+	for i := 0; i < len(agents); i++ {
 		agentsMap[agents[i].GetName()] = agents[i]
 	}
 	return &contract.FeedService{
@@ -22,13 +22,11 @@ func InstanceFeedService() *contract.FeedService {
 	return feedService
 }
 
-
 func InitFeedService() {
 	feedService = NewFeedService(InitGenAgents()...)
 	feedService.InitService()
 	feedService.StartService()
 }
-
 
 var ThreadReportCheck *contract.ThreadReportCheckEr
 
@@ -41,9 +39,7 @@ func NewThreadReportCheckEr() {
 	go ThreadReportCheck.CheckThreadReport()
 }
 
-
 var UserReportCheck *contract.UserReportCheckEr
-
 
 func NewUserReportCheck() {
 	UserReportCheck = &contract.UserReportCheckEr{

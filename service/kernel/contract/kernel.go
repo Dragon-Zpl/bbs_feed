@@ -106,4 +106,3 @@ func (this *FeedService) Remove(agentName string, ids []int) error {
 		return errors.New(fmt.Sprintf("%s is not exist", agentName))
 	}
 }
-

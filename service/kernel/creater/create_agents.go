@@ -23,7 +23,7 @@ var AgentMapping = map[string]AgentGen{
 	"essence":            Essence(),
 	"new_hot":            NewHot(),
 	"today_introduction": TodayIntroduction(),
-	"week_popularity":    WeekContribution(),
+	"week_popularity":    WeekPopularity(),
 	"week_contribution":  WeekContribution(),
 }
 
@@ -55,12 +55,14 @@ func TodayIntroduction() AgentGen {
 	}
 }
 
+//本周人气榜
 func WeekPopularity() AgentGen {
 	return func(topicId int, topicIds []string) contract.Agent {
 		return nil
 	}
 }
 
+//本周贡献榜
 func WeekContribution() AgentGen {
 	return func(topicId int, topicIds []string) contract.Agent {
 		return nil
