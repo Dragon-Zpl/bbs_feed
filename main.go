@@ -10,9 +10,7 @@ import (
 func main() {
 	conf.InitConf()
 	boot.ConnectMySQL()
-	creater.InitFeedService()
-	creater.NewThreadReportCheckEr()
-	creater.NewUserReportCheck()
+	creater.InitService()
 	r := router.Router()
 	r.Run(":8888")
 }

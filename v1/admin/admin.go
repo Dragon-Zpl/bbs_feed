@@ -1,32 +1,33 @@
 package admin
 
 import (
+	"bbs_feed/lib/feed_errors"
 	"bbs_feed/lib/helper"
 	"bbs_feed/service"
+	"bbs_feed/service/api_func"
 	"bbs_feed/service/kernel/contract"
-	"bbs_feed/service/kernel/creater"
 	"bbs_feed/service/redis_ops"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"github.com/json-iterator/go"
 	"strings"
 	"time"
 )
 
 func Mapping(prefix string, app *gin.Engine) {
 	admin := app.Group(prefix)
-	admin.POST("/topic", AddTopic)
-	admin.POST("/agnet", AddAgent)
-	admin.DELETE("/topic/:id", DelTopic)
-	admin.POST("/topic/conf", FeedTypeConfChange)
-	admin.POST("/topic/fids", TopicDataSourceChange)
-	admin.POST("/report/thread/conf", ChangeThreadReportConf)
-	admin.POST("/report/user/conf", ChangeUserReportConf)
-	admin.DELETE("/call_back", DelTopicData)
-	admin.POST("/report/thread", ThreadReport)
-	admin.POST("/report/user", UserReport)
-	admin.POST("/trait", AddCallBlockTrait)
+	admin.POST("/topic", feed_errors.MdError(AddTopic))
+	admin.POST("/agnet", feed_errors.MdError(AddAgent))
+	admin.DELETE("/topic/:id", feed_errors.MdError(DelTopic))
+	admin.POST("/topic/conf", feed_errors.MdError(FeedTypeConfChange))
+	admin.POST("/topic/fids", feed_errors.MdError(TopicDataSourceChange))
+	admin.POST("/report/thread/conf", feed_errors.MdError(ChangeThreadReportConf))
+	admin.POST("/report/user/conf", feed_errors.MdError(ChangeUserReportConf))
+	admin.DELETE("/call_back", feed_errors.MdError(DelTopicData))
+	admin.POST("/report/thread", feed_errors.MdError(ThreadReport))
+	admin.POST("/report/user", feed_errors.MdError(UserReport))
+	admin.POST("/trait", feed_errors.MdError(AddCallBlockTrait))
 
 }
 
@@ -36,26 +37,16 @@ type FeedTypeConfForm struct {
 }
 
 // 调用块配置改变
-func FeedTypeConfChange(ctx *gin.Context) {
+func FeedTypeConfChange(ctx *gin.Context) error {
 	var feedTypeConfForm FeedTypeConfForm
 	if err := ctx.ShouldBind(&feedTypeConfForm); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
-	if err := creater.InstanceFeedService().ChangeConf(feedTypeConfForm.FeedType, feedTypeConfForm.Conf); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "配置传入有误",
-		})
-		return
+	if err := api_func.FeedTypeConfChangeService(feedTypeConfForm.FeedType, feedTypeConfForm.Conf); err != nil {
+		return errors.New("conf_error")
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	ctx.JSON(helper.Success())
+	return nil
 }
 
 type TopicDataSourceForm struct {
@@ -64,21 +55,15 @@ type TopicDataSourceForm struct {
 }
 
 // topic 数据源改变
-func TopicDataSourceChange(ctx *gin.Context) {
+func TopicDataSourceChange(ctx *gin.Context) error {
 	var topicDataSourceForm TopicDataSourceForm
 	if err := ctx.ShouldBind(&topicDataSourceForm); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
 	topicIds := strings.Split(topicDataSourceForm.TopicIds, ",")
-	creater.InstanceFeedService().ChangeFids(topicDataSourceForm.TopicId, topicIds)
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	api_func.TopicDataSourceChangeService(topicDataSourceForm.TopicId, topicIds)
+	ctx.JSON(helper.Success())
+	return nil
 }
 
 type TopicForm struct {
@@ -86,28 +71,16 @@ type TopicForm struct {
 }
 
 // 增加topic
-func AddTopic(ctx *gin.Context) {
+func AddTopic(ctx *gin.Context) error {
 	var topicForm TopicForm
 	if err := ctx.ShouldBind(&topicForm); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
-	if agents, err := creater.GenAgents(topicForm.TopicId); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": fmt.Sprintf("topic %s 未配置", topicForm.TopicId),
-		})
-		return
-	} else {
-		creater.InstanceFeedService().RegisterService(agents...)
+	if err := api_func.AddTopicService(topicForm.TopicId); err != nil {
+		return err
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	ctx.JSON(helper.Success())
+	return nil
 }
 
 type AgentForm struct {
@@ -117,64 +90,40 @@ type AgentForm struct {
 }
 
 // 添加agent
-func AddAgent(ctx *gin.Context) {
+func AddAgent(ctx *gin.Context) error {
 	var agentForm AgentForm
 	if err := ctx.ShouldBind(&agentForm); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
 	topicIds := strings.Split(agentForm.TopicIds, ",")
-	if agent := creater.GenAgent(agentForm.TopicId, agentForm.FeedType, topicIds); agent == nil {
-		creater.InstanceFeedService().RegisterService(agent)
-		ctx.JSON(http.StatusOK, gin.H{
-			"code":    0,
-			"message": "success",
-		})
-		return
+	if err := api_func.AddAgentService(agentForm.TopicId, agentForm.FeedType, topicIds); err != nil {
+		ctx.JSON(helper.Success())
+		return nil
 	} else {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return err
 	}
 }
 
 // 删除topic
-func DelTopic(ctx *gin.Context) {
+func DelTopic(ctx *gin.Context) error {
 	var topicForm TopicForm
 	if err := ctx.ShouldBind(&topicForm); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
-	creater.InstanceFeedService().RemovePusher(topicForm.TopicId)
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	api_func.DelTopicService(topicForm.TopicId)
+	ctx.JSON(helper.Success())
+	return nil
 }
 
 // 修改帖子举报规则
-func ChangeThreadReportConf(ctx *gin.Context) {
+func ChangeThreadReportConf(ctx *gin.Context) error {
 	var reportThreadConf contract.ReportThreadConf
 	if err := ctx.ShouldBind(&reportThreadConf); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
-	creater.ThreadReportCheck.ChangeConf(reportThreadConf)
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	api_func.ChangeThreadReportConfService(reportThreadConf)
+	ctx.JSON(helper.Success())
+	return nil
 }
 
 type ThreadReportForm struct {
@@ -182,39 +131,26 @@ type ThreadReportForm struct {
 }
 
 // 帖子举报
-func ThreadReport(ctx *gin.Context) {
+func ThreadReport(ctx *gin.Context) error {
 	var threadReportForm ThreadReportForm
 	if err := ctx.ShouldBind(&threadReportForm); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
 	tids := strings.Split(threadReportForm.ThreadIds, ",")
-	tidsInt := helper.ArrayStrToInt(tids)
-	creater.ThreadReportCheck.AcceptReportTids(tidsInt)
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	api_func.ThreadReportService(helper.ArrayStrToInt(tids))
+	ctx.JSON(helper.Success())
+	return nil
 }
 
 // 修改用户举报规则
-func ChangeUserReportConf(ctx *gin.Context) {
+func ChangeUserReportConf(ctx *gin.Context) error {
 	var reportUserConf contract.ReportUserConf
 	if err := ctx.ShouldBind(&reportUserConf); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
-	creater.UserReportCheck.ChangeConf(reportUserConf)
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	api_func.ChangeUserReportConfService(reportUserConf)
+	ctx.JSON(helper.Success())
+	return nil
 }
 
 type UserReportForm struct {
@@ -222,22 +158,15 @@ type UserReportForm struct {
 }
 
 // 用户举报
-func UserReport(ctx *gin.Context) {
+func UserReport(ctx *gin.Context) error {
 	var userReportForm UserReportForm
 	if err := ctx.ShouldBind(&userReportForm); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
 	uids := strings.Split(userReportForm.UserIds, ",")
-	uidInts := helper.ArrayStrToInt(uids)
-	creater.UserReportCheck.AcceptReportUids(uidInts)
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	api_func.UserReportService(helper.ArrayStrToInt(uids))
+	ctx.JSON(helper.Success())
+	return nil
 }
 
 type DelTopicFrom struct {
@@ -246,29 +175,18 @@ type DelTopicFrom struct {
 	Ids      string `form:"ids" binding:"required"`
 }
 
-func DelTopicData(ctx *gin.Context) {
+func DelTopicData(ctx *gin.Context) error {
 	var delTopicFrom DelTopicFrom
 	if err := ctx.ShouldBind(&delTopicFrom); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
 	agentName := fmt.Sprintf("%s%s%s", delTopicFrom.TopicId, service.Separator, delTopicFrom.FeedType)
 	ids := strings.Split(delTopicFrom.Ids, ",")
-	idsInt := helper.ArrayStrToInt(ids)
-	if err := creater.InstanceFeedService().Remove(agentName, idsInt); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": err.Error(),
-		})
-		return
+	if err := api_func.DelTopicDataService(agentName, helper.ArrayStrToInt(ids)); err != nil {
+		return err
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	ctx.JSON(helper.Success())
+	return nil
 }
 
 type TraitFrom struct {
@@ -279,33 +197,20 @@ type TraitFrom struct {
 	Trait    service.CallBlockTrait `form:"trait"`
 }
 
-func AddCallBlockTrait(ctx *gin.Context) {
+func AddCallBlockTrait(ctx *gin.Context) error {
 	var traitFrom TraitFrom
 	if err := ctx.ShouldBind(&traitFrom); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("params_error")
 	}
 	redisKey := fmt.Sprintf("call_block_%s_trait", traitFrom.FeedType)
 	if !redis_ops.KeyExist(redisKey) {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
+		return errors.New("redis_key_notexist")
 	}
-	if traitBytes, err := json.Marshal(traitFrom.Trait); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"code":    1053,
-			"message": "参数传入有误",
-		})
-		return
-		redis_ops.HSet(redisKey, traitFrom.Id, string(traitBytes), time.Duration(traitFrom.Exp)*time.Hour)
+	if traitStr, err := jsoniter.MarshalToString(traitFrom.Trait); err != nil {
+		return err
+	} else {
+		redis_ops.HSet(redisKey, traitFrom.Id, traitStr, time.Duration(traitFrom.Exp)*time.Hour)
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-	})
+	ctx.JSON(helper.Success())
+	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+//feed service
 var feedService *contract.FeedService
 
 func NewFeedService(agents ...contract.Agent) *contract.FeedService {
@@ -28,6 +29,7 @@ func InitFeedService() {
 	feedService.StartService()
 }
 
+//帖子举报service
 var ThreadReportCheck *contract.ThreadReportCheckEr
 
 func NewThreadReportCheckEr() {
@@ -39,13 +41,20 @@ func NewThreadReportCheckEr() {
 	go ThreadReportCheck.CheckThreadReport()
 }
 
+//用户举报service
 var UserReportCheck *contract.UserReportCheckEr
 
-func NewUserReportCheck() {
+func NewUserReportCheckEr() {
 	UserReportCheck = &contract.UserReportCheckEr{
 		FeedService: feedService,
 		ReConf:      contract.ReportUserConf{},
 		ReportUids:  make(chan []int, 10),
 	}
 	go UserReportCheck.CheckUserReport()
+}
+
+func InitService() {
+	InitFeedService()
+	NewThreadReportCheckEr()
+	NewUserReportCheckEr()
 }

@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -16,4 +18,19 @@ func ArrayStrToInt(in []string) (outs []int) {
 		}
 	}
 	return
+}
+
+func Success() (int, interface{}) {
+	return http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+	}
+}
+
+func SuccessWithDate(data interface{}) (int, interface{}) {
+	return http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    data,
+	}
 }
