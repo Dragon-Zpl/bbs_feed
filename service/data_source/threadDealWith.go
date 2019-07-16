@@ -67,7 +67,7 @@ func GetTodayIntroSortThread(fids []int, day int) []RedisThread {
 	return redisThreads
 }
 
-// 获取今日导读排序后的thread
+// 获取new hot排序后的thread
 func GetNewHotSortThread(fids []int, day int) []RedisThread {
 	var (
 		newHotThreads NewHotThread

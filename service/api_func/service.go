@@ -1,6 +1,7 @@
 package api_func
 
 import (
+	"bbs_feed/model/feed_permission"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/kernel/creater"
 	"errors"
@@ -38,6 +39,7 @@ func AddAgentService(topicId int, feedTyp string, topicIds []string) error {
 
 // 删除topic
 func DelTopicService(topicId string) {
+	feed_permission.UpdateIsUse(topicId, 0)
 	creater.InstanceFeedService().RemovePusher(topicId)
 }
 

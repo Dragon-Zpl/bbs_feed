@@ -10,14 +10,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/astaxie/beego/logs"
 	"strconv"
 	"time"
 )
 
 //热帖
 
-const CALl_BLOCK_HOT_THREAD = "call_block_hot_thread"
-const CALl_BLOCK_HOT_THREAD_TRAIT = "call_block_hot_thread_trait"
+const CALl_BLOCK_HOT_THREAD = "call_block_hot"
+const CALl_BLOCK_HOT_THREAD_TRAIT = "call_block_hot_trait"
 
 type HotRules struct {
 	Day        int `json:"day"` //几天内的数据
@@ -131,6 +132,7 @@ func (this *Hot) worker() {
 		datas = append(datas, thread)
 	}
 	redis_ops.ZAddSort(this.redisKey(), datas)
+	logs.Info(this.redisKey(), "insert success")
 }
 
 func (this *Hot) ChangeFids(topicIds []string) {

@@ -3,6 +3,7 @@ package admin
 import (
 	"bbs_feed/lib/feed_errors"
 	"bbs_feed/lib/helper"
+	"bbs_feed/lib/stringi"
 	"bbs_feed/service"
 	"bbs_feed/service/api_func"
 	"bbs_feed/service/kernel/contract"
@@ -106,11 +107,11 @@ func AddAgent(ctx *gin.Context) error {
 
 // 删除topic
 func DelTopic(ctx *gin.Context) error {
-	var topicForm TopicForm
-	if err := ctx.ShouldBind(&topicForm); err != nil {
+	topicId := ctx.Param("id")
+	if stringi.Empty(topicId) {
 		return errors.New("params_error")
 	}
-	api_func.DelTopicService(topicForm.TopicId)
+	api_func.DelTopicService(topicId)
 	ctx.JSON(helper.Success())
 	return nil
 }

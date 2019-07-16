@@ -5,7 +5,6 @@ import (
 	"bbs_feed/model/topic_fid_relation"
 	"bbs_feed/service"
 	"bbs_feed/service/data_source"
-	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/redis_ops"
 	"context"
 	"encoding/json"
@@ -14,7 +13,7 @@ import (
 	"time"
 )
 
-//最新热帖
+//最新最热(新闻)
 
 const CALl_BLOCK_NEW_HOT = "call_block_new_hot"
 const CALl_BLOCK_NEW_HOT_TRAIT = "call_block_new_hot_trait"
@@ -36,13 +35,21 @@ type NewHots struct {
 	topicIds []string // 数据源
 }
 
-func NewNewHots(topicId int, topicIds []string) *Hot {
-	return &Hot{
-		topicId:      topicId,
-		name:         fmt.Sprintf("%d%s%s", topicId, service.Separator, service.TODAY_INTRO),
-		topicIds:     topicIds,
-		threadReport: contract.CreateThreadReport(),
+func NewNewHots(topicId int, topicIds []string) *NewHots {
+	return &NewHots{
+		topicId:  topicId,
+		name:     fmt.Sprintf("%d%s%s", topicId, service.Separator, service.TODAY_INTRO),
+		topicIds: topicIds,
 	}
+}
+
+// 删除 redis 数据
+func (this *NewHots) Remover(tids []int) {
+	this.remover(tids)
+}
+
+func (this *NewHots) remover(tids []int) {
+	data_source.DelRedisThreadInfo(tids, this.redisKey(), this.traitRedisKey())
 }
 
 func (this *NewHots) GetThis() interface{} {
@@ -53,8 +60,7 @@ func (this *NewHots) Init() {
 	ctx, cancel := context.WithCancel(context.Background())
 	this.Ctx = ctx
 	this.cancel = cancel
-	this.newHotRules = NewHotRules{} // todo
-	//this.hotRules = service_confs.Hot
+	this.newHotRules = newHot
 }
 
 func (this *NewHots) ChangeConf(conf string) error {

@@ -43,3 +43,13 @@ func GetOne(topicId string) (m Model, err error) {
 	err = qs.Filter("topicId", topicId).One(&m)
 	return
 }
+
+//1代表使用，0代表未使用
+func UpdateIsUse(topicId string, isUse int) (err error) {
+	o := boot.GetMasterMysql()
+	qs := o.QueryTable((*Model)(nil))
+	_, err = qs.Filter("topicId", topicId).Update(orm.Params{
+		"is_use": isUse,
+	})
+	return
+}

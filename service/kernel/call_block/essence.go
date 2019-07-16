@@ -10,6 +10,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/astaxie/beego/logs"
 	"strconv"
 	"time"
 )
@@ -126,6 +127,7 @@ func (this *Essence) worker() {
 		datas = append(datas, thread)
 	}
 	redis_ops.ZAddSort(this.redisKey(), datas)
+	logs.Info(this.redisKey(), "insert success")
 }
 
 func (this *Essence) GetName() string {

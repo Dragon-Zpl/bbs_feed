@@ -44,7 +44,7 @@ func Essence() AgentGen {
 // 最新最热
 func NewHot() AgentGen {
 	return func(topicId int, topicIds []string) contract.Agent {
-		return call_block.NewHot(topicId, topicIds)
+		return call_block.NewNewHots(topicId, topicIds)
 	}
 }
 
@@ -106,8 +106,8 @@ func GenAgents(topicId string) ([]contract.Agent, error) {
 	topicIds := strings.Split(topic.TopicIds, ",")
 	topicIds = data_source.CheckAndGetCurTopics(topicIds)
 
-	t := reflect.TypeOf(topic).Elem()
-	v := reflect.ValueOf(topic).Elem()
+	t := reflect.TypeOf(&topic).Elem()
+	v := reflect.ValueOf(&topic).Elem()
 	for i := 0; i < t.NumField(); i++ {
 		tag := t.Field(i).Tag.Get("json")
 		if _, ok := AgentMapping[tag]; ok {
