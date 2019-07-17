@@ -5,6 +5,9 @@ import (
 	"sync"
 )
 
+//默认举报次数界限
+const ReportCountLimit = 3
+
 //feed service
 var feedService *contract.FeedService
 
@@ -35,7 +38,7 @@ var ThreadReportCheck *contract.ThreadReportCheckEr
 func NewThreadReportCheckEr() {
 	ThreadReportCheck = &contract.ThreadReportCheckEr{
 		FeedService: feedService,
-		ReConf:      contract.ReportThreadConf{},
+		ReConf:      contract.ReportThreadConf{ReportCount: ReportCountLimit},
 		ReportTids:  make(chan []int, 10),
 	}
 	go ThreadReportCheck.CheckThreadReport()

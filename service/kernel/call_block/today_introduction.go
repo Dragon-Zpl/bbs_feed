@@ -5,7 +5,6 @@ import (
 	"bbs_feed/model/topic_fid_relation"
 	"bbs_feed/service"
 	"bbs_feed/service/data_source"
-	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/redis_ops"
 	"context"
 	"encoding/json"
@@ -36,13 +35,21 @@ type TodayIntro struct {
 	topicIds []string // 数据源
 }
 
-func NewTodayIntro(topicId int, topicIds []string) *Hot {
-	return &Hot{
-		topicId:      topicId,
-		name:         fmt.Sprintf("%d%s%s", topicId, service.Separator, service.TODAY_INTRO),
-		topicIds:     topicIds,
-		threadReport: contract.CreateThreadReport(),
+func NewTodayIntro(topicId int, topicIds []string) *TodayIntro {
+	return &TodayIntro{
+		topicId:  topicId,
+		name:     fmt.Sprintf("%d%s%s", topicId, service.Separator, service.TODAY_INTRO),
+		topicIds: topicIds,
 	}
+}
+
+// 删除 redis 数据
+func (this *TodayIntro) Remover(tids []int) {
+	this.remover(tids)
+}
+
+func (this *TodayIntro) remover(tids []int) {
+	data_source.DelRedisThreadInfo(tids, this.redisKey(), this.traitRedisKey())
 }
 
 func (this *TodayIntro) GetThis() interface{} {
@@ -53,8 +60,7 @@ func (this *TodayIntro) Init() {
 	ctx, cancel := context.WithCancel(context.Background())
 	this.Ctx = ctx
 	this.cancel = cancel
-	this.introRules = IntroRules{} // todo
-	//this.hotRules = service_confs.Hot
+	this.introRules = todayIntro
 }
 
 func (this *TodayIntro) ChangeConf(conf string) error {

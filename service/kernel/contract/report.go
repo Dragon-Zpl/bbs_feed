@@ -1,12 +1,13 @@
 package contract
 
 import (
+	"bbs_feed/model/report_num"
 	"time"
 )
 
-/*
-	举报
-*/
+const (
+	CheckTime = 5 * time.Minute
+)
 
 // 帖子举报
 type ThreadReport interface {
@@ -21,25 +22,25 @@ type UserReport interface {
 }
 
 type ThreadRep struct {
-	reportChan chan []int
+	ReportChan chan []int
 }
 
 func (this *ThreadRep) RemoveReportThread(f func([]int)) {
 	for {
 		select {
-		case tids := <-this.reportChan:
+		case tids := <-this.ReportChan:
 			f(tids)
 		}
 	}
 }
 
 func (this *ThreadRep) AcceptSign(tids []int) {
-	this.reportChan <- tids
+	this.ReportChan <- tids
 }
 
 func CreateThreadReport() ThreadReport {
 	return &ThreadRep{
-		reportChan: make(chan []int, 10),
+		ReportChan: make(chan []int, 10),
 	}
 }
 
@@ -58,7 +59,7 @@ type ThreadReportCheckEr struct {
 }
 
 func (this *ThreadReportCheckEr) CheckThreadReport() {
-	t := time.NewTimer(5 * time.Minute)
+	t := time.NewTimer(CheckTime)
 	for {
 		select {
 		case <-t.C:
@@ -66,7 +67,7 @@ func (this *ThreadReportCheckEr) CheckThreadReport() {
 			if len(tids) > 0 {
 				this.seedReportTids(tids)
 			}
-			t.Reset(5 * time.Minute)
+			t.Reset(CheckTime)
 		case tids := <-this.ReportTids:
 			this.seedReportTids(tids)
 		}
@@ -89,7 +90,12 @@ func (this *ThreadReportCheckEr) AcceptReportTids(tids []int) {
 }
 
 func (this *ThreadReportCheckEr) GetReportTids() (tids []int) {
-	// todo 从配置 读出举报帖
+	results := report_num.GetAll(CheckTime)
+	for _, result := range results {
+		if result.Num > this.ReConf.ReportCount {
+			tids = append(tids, result.ThreadId)
+		}
+	}
 	return
 }
 
@@ -104,7 +110,7 @@ type UserReportCheckEr struct {
 }
 
 func (this *UserReportCheckEr) CheckUserReport() {
-	t := time.NewTimer(5 * time.Minute)
+	t := time.NewTimer(CheckTime)
 	for {
 		select {
 		case <-t.C:
@@ -113,7 +119,7 @@ func (this *UserReportCheckEr) CheckUserReport() {
 				this.seedReportUids(uids)
 			}
 
-			t.Reset(5 * time.Minute)
+			t.Reset(CheckTime)
 		case uids := <-this.ReportUids:
 			this.seedReportUids(uids)
 		}

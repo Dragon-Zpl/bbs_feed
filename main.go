@@ -12,5 +12,5 @@ func main() {
 	boot.ConnectMySQL()
 	creater.InitService()
 	r := router.Router()
-	r.Run(":8888")
+	r.Run(":8887")
 }

@@ -36,17 +36,19 @@ type Hot struct {
 	cancel context.CancelFunc
 	Ctx    context.Context
 
-	topicIds     []string // 数据源
-	threadReport contract.ThreadReport
+	topicIds []string // 数据源
+
+	contract.ThreadRep
 }
 
 func NewHot(topicId int, topicIds []string) *Hot {
-	return &Hot{
-		topicId:      topicId,
-		name:         fmt.Sprintf("%d%s%s", topicId, service.Separator, service.HOT),
-		topicIds:     topicIds,
-		threadReport: contract.CreateThreadReport(),
+	hot := &Hot{
+		topicId:  topicId,
+		name:     fmt.Sprintf("%d%s%s", topicId, service.Separator, service.HOT),
+		topicIds: topicIds,
 	}
+	hot.ReportChan = make(chan []int, 10)
+	return hot
 }
 
 // 删除 redis 数据
@@ -55,6 +57,7 @@ func (this *Hot) Remover(tids []int) {
 }
 
 func (this *Hot) remover(tids []int) {
+	logs.Info("remove --", this.redisKey(), "--", this.traitRedisKey(), "--", tids)
 	data_source.DelRedisThreadInfo(tids, this.redisKey(), this.traitRedisKey())
 }
 
@@ -84,8 +87,7 @@ func (this *Hot) Init() {
 	this.Ctx = ctx
 	this.cancel = cancel
 	this.hotRules = hot
-	go this.threadReport.RemoveReportThread(this.remover) // 开启举报帖自检
-	//this.hotRules = service_confs.Hot
+	go this.RemoveReportThread(this.remover) // 开启举报帖自检
 }
 
 func (this *Hot) ChangeConf(conf string) error {

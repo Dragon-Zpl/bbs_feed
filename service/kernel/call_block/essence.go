@@ -35,19 +35,21 @@ type Essence struct {
 
 	topicIds []string // 数据源
 
-	threadReport contract.ThreadReport // 组合举报接口
+	contract.ThreadRep
 }
 
 func NewEssence(topicId int, topicIds []string) *Essence {
-	return &Essence{
-		topicId:      topicId,
-		name:         fmt.Sprintf("%d%s%s", topicId, service.Separator, service.ESSENCE),
-		topicIds:     topicIds,
-		threadReport: contract.CreateThreadReport(),
+	essence := &Essence{
+		topicId:  topicId,
+		name:     fmt.Sprintf("%d%s%s", topicId, service.Separator, service.ESSENCE),
+		topicIds: topicIds,
 	}
+	essence.ReportChan = make(chan []int, 10)
+	return essence
 }
 
 func (this *Essence) remover(tids []int) {
+	logs.Info("remove --", this.redisKey(), "--", this.traitRedisKey(), "--", tids)
 	data_source.DelRedisThreadInfo(tids, this.redisKey(), this.traitRedisKey())
 }
 
@@ -60,7 +62,7 @@ func (this *Essence) Init() {
 	this.Ctx = ctx
 	this.cancel = cancel
 	this.essenceRules = essence
-	go this.threadReport.RemoveReportThread(this.remover)
+	go this.RemoveReportThread(this.remover)
 }
 
 func (this *Essence) ChangeConf(conf string) error {
