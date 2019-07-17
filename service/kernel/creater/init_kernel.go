@@ -6,7 +6,10 @@ import (
 )
 
 //默认举报次数界限
-const ReportCountLimit = 3
+const (
+	ThreadReportCountLimit = 3 //帖子举报次数
+	UserCrimeCountLimit    = 2 //用户违规次数
+)
 
 //feed service
 var feedService *contract.FeedService
@@ -38,7 +41,7 @@ var ThreadReportCheck *contract.ThreadReportCheckEr
 func NewThreadReportCheckEr() {
 	ThreadReportCheck = &contract.ThreadReportCheckEr{
 		FeedService: feedService,
-		ReConf:      contract.ReportThreadConf{ReportCount: ReportCountLimit},
+		ReConf:      contract.ReportThreadConf{ReportCount: ThreadReportCountLimit},
 		ReportTids:  make(chan []int, 10),
 	}
 	go ThreadReportCheck.CheckThreadReport()
@@ -50,7 +53,7 @@ var UserReportCheck *contract.UserReportCheckEr
 func NewUserReportCheckEr() {
 	UserReportCheck = &contract.UserReportCheckEr{
 		FeedService: feedService,
-		ReConf:      contract.ReportUserConf{},
+		ReConf:      contract.ReportUserConf{ReportCount: UserCrimeCountLimit},
 		ReportUids:  make(chan []int, 10),
 	}
 	go UserReportCheck.CheckUserReport()

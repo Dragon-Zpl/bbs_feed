@@ -24,6 +24,18 @@ func ArrayStrToInt(in []string) (outs []int) {
 	return
 }
 
+func SameElementCount(s []int) map[int]int {
+	m := make(map[int]int)
+	for _, elem := range s {
+		if _, ok := m[elem]; !ok {
+			m[elem] = 1
+		} else {
+			m[elem] += 1
+		}
+	}
+	return m
+}
+
 func Success() (int, interface{}) {
 	return http.StatusOK, gin.H{
 		"code":    0,

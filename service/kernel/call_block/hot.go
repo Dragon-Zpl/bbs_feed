@@ -61,23 +61,6 @@ func (this *Hot) remover(tids []int) {
 	data_source.DelRedisThreadInfo(tids, this.redisKey(), this.traitRedisKey())
 }
 
-// 测试使用
-func Remove(tids []int) {
-	hotThreads := data_source.GetThreadByTids(tids)
-	for _, thread := range hotThreads {
-		if trait, err := boot.InstanceRedisCli(boot.CACHE).HGet(CALl_BLOCK_HOT_THREAD_TRAIT, strconv.Itoa(thread.Thread.Tid)).Result(); err == nil {
-			var callBlockTrait service.CallBlockTrait
-			if err = json.Unmarshal([]byte(trait), &callBlockTrait); err == nil {
-				thread.Trait = callBlockTrait
-			}
-		}
-		if threadBytes, err := json.Marshal(thread); err == nil {
-			fmt.Println(string(threadBytes))
-			redis_ops.DelZAdd(CALl_BLOCK_HOT_THREAD, string(threadBytes))
-		}
-	}
-}
-
 func (this *Hot) GetThis() interface{} {
 	return this
 }
