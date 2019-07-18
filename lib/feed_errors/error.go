@@ -27,9 +27,15 @@ var errorMsgs = map[string]errorMsg{
 		Code:    1004,
 		Message: "该topic未配置",
 	},
+
 	"redis_key_notexist": errorMsg{
 		Code:    1005,
 		Message: "redis key 不存在",
+	},
+
+	"feed_type_exist": errorMsg{
+		Code:    1006,
+		Message: "该调用块配置已经存在",
 	},
 }
 

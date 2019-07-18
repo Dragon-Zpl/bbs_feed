@@ -32,7 +32,7 @@ func (this *FeedService) RegisterService(agents ...Agent) {
 	defer this.Mu.Unlock()
 	for _, agent := range agents {
 		if _, ok := this.Agents[agent.GetName()]; ok {
-			this.stopAgents(agent.GetName())
+			this.StopAgents(agent.GetName())
 		}
 		agent.Init()
 		agent.Start()
@@ -62,7 +62,7 @@ func (this *FeedService) StopService() {
 }
 
 // 停止指定的agent
-func (this *FeedService) stopAgents(keys ...string) {
+func (this *FeedService) StopAgents(keys ...string) {
 	for _, key := range keys {
 		if _, ok := this.Agents[key]; ok {
 			this.Agents[key].Stop()
@@ -74,7 +74,7 @@ func (this *FeedService) stopAgents(keys ...string) {
 func (this *FeedService) RemovePusher(topicId string) {
 	for _, agent := range this.Agents {
 		if strings.Split(agent.GetName(), service.Separator)[0] == topicId {
-			this.stopAgents(agent.GetName())
+			this.StopAgents(agent.GetName())
 		}
 	}
 }

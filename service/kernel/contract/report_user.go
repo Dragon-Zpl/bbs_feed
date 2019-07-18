@@ -85,7 +85,7 @@ func (this *UserReportCheckEr) ChangeConf(conf ReportUserConf) {
 	this.ReConf = conf
 }
 
-// 处理举报贴接口
+// 接收违规用户uid
 func (this *UserReportCheckEr) AcceptReportUids(uids []int) {
 	this.ReportUids <- uids
 }

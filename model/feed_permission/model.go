@@ -45,11 +45,29 @@ func GetOne(topicId string) (m Model, err error) {
 }
 
 //1代表使用，0代表未使用
-func UpdateIsUse(topicId string, isUse int) (err error) {
+func UpdateIsUse(topicId int, isUse int) (err error) {
 	o := boot.GetMasterMysql()
 	qs := o.QueryTable((*Model)(nil))
 	_, err = qs.Filter("topicId", topicId).Update(orm.Params{
 		"is_use": isUse,
+	})
+	return
+}
+
+func UpdateFeedType(topicId int, feedTyp string, isUse int) (err error) {
+	o := boot.GetMasterMysql()
+	qs := o.QueryTable((*Model)(nil))
+	_, err = qs.Filter("topicId", topicId).Update(orm.Params{
+		feedTyp: isUse,
+	})
+	return
+}
+
+func UpdateTopicIds(topicId string, topicIds string) (err error) {
+	o := boot.GetMasterMysql()
+	qs := o.QueryTable((*Model)(nil))
+	_, err = qs.Filter("topicId", topicId).Update(orm.Params{
+		"topic_ids": topicIds,
 	})
 	return
 }
