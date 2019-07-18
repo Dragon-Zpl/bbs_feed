@@ -55,10 +55,9 @@ type TraitFrom struct {
 	Trait    service.CallBlockTrait `form:"trait"`
 }
 
-
 type CallBackArgs struct {
 	TopicId string `form:"topicId" binding:"required"`
-	Block string `form:"block" binding:"required"`
+	Block   string `form:"block" binding:"required"`
 }
 
 //type ThreadStruct struct {

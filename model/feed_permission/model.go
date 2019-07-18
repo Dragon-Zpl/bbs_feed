@@ -44,7 +44,7 @@ func GetOne(topicId string) (m Model, err error) {
 	return
 }
 
-func GetBlock(topicId, block string) (err error){
+func GetBlock(topicId, block string) (err error) {
 	var m Model
 	o := boot.GetSlaveMySql()
 	qs := o.QueryTable((*Model)(nil))
