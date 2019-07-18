@@ -3,7 +3,6 @@ package admin
 import (
 	"bbs_feed/lib/feed_errors"
 	"bbs_feed/lib/helper"
-	"bbs_feed/lib/stringi"
 	"bbs_feed/service"
 	"bbs_feed/service/api_func"
 	"bbs_feed/service/kernel/contract"
@@ -20,20 +19,23 @@ import (
 func Mapping(prefix string, app *gin.Engine) {
 	admin := app.Group(prefix)
 	admin.POST("/topic", feed_errors.MdError(AddTopic))
-	admin.POST("/agnet", feed_errors.MdError(AddAgent))
-	admin.DELETE("/topic/:id", feed_errors.MdError(DelTopic))
-	//TODO DelAgent
-	admin.PUT("/topic/conf", feed_errors.MdError(FeedTypeConfChange))
-	admin.PUT("/topic/fids", feed_errors.MdError(TopicDataSourceChange))
-	admin.PUT("/thread/report_conf", feed_errors.MdError(ChangeThreadReportConf))
-	admin.PUT("/user/report_conf", feed_errors.MdError(ChangeUserReportConf))
+	admin.PUT("/topic", feed_errors.MdError(UpdateTopic))
+	admin.PUT("/agent", feed_errors.MdError(UpdateAgent))
+	admin.PUT("/topic/topic_ids", feed_errors.MdError(UpdateTopicIds))
+
+	admin.POST("/feed/conf", feed_errors.MdError(AddFeedTypeConf))
+	admin.PUT("/feed/conf", feed_errors.MdError(UpdateFeedTypeConf))
+
+	admin.PUT("/thread/report_conf", feed_errors.MdError(UpdateThreadReportConf))
+	admin.PUT("/user/report_conf", feed_errors.MdError(UpdateUserReportConf))
 	admin.DELETE("/call_back", feed_errors.MdError(DelTopicData))
+
 	admin.POST("/report/thread", feed_errors.MdError(ThreadReport))
 	admin.POST("/report/user", feed_errors.MdError(UserReport))
 	admin.POST("/trait", feed_errors.MdError(AddCallBlockTrait))
 }
 
-// 增加topic
+// 添加topic
 func AddTopic(ctx *gin.Context) error {
 	var topicForm forms.TopicForm
 	if err := ctx.ShouldBind(&topicForm); err != nil {
@@ -46,86 +48,100 @@ func AddTopic(ctx *gin.Context) error {
 	return nil
 }
 
-// 添加agent
-func AddAgent(ctx *gin.Context) error {
+// 启用、关闭topic
+func UpdateTopic(ctx *gin.Context) error {
+	var updateTopicForm forms.UpdateTopicForm
+	if err := ctx.ShouldBind(&updateTopicForm); err != nil {
+		return errors.New("params_error")
+	}
+	if err := api_func.UpdateTopicService(updateTopicForm.TopicId, updateTopicForm.IsUse); err != nil {
+		return err
+	}
+	ctx.JSON(helper.Success())
+	return nil
+}
+
+//启用、关闭Agent
+func UpdateAgent(ctx *gin.Context) error {
 	var agentForm forms.AgentForm
 	if err := ctx.ShouldBind(&agentForm); err != nil {
 		return errors.New("params_error")
 	}
-	topicIds := strings.Split(agentForm.TopicIds, ",")
-	if err := api_func.AddAgentService(agentForm.TopicId, agentForm.FeedType, topicIds); err != nil {
+	if err := api_func.UpdateAgentService(agentForm.TopicId, agentForm.FeedType, agentForm.IsUse); err != nil {
 		return err
 	} else {
 		ctx.JSON(helper.Success())
 		return nil
 	}
+	return nil
 }
 
-// 删除topic
-func DelTopic(ctx *gin.Context) error {
-	topicId := ctx.Param("id")
-	if stringi.Empty(topicId) {
+// 修改topic数据源topicIds
+func UpdateTopicIds(ctx *gin.Context) error {
+	var topicDataSourceForm forms.TopicDataSourceForm
+	if err := ctx.ShouldBind(&topicDataSourceForm); err != nil {
 		return errors.New("params_error")
 	}
-	api_func.DelTopicService(topicId)
+	api_func.UpdateTopicIdsService(topicDataSourceForm.TopicId, topicDataSourceForm.TopicIds)
 	ctx.JSON(helper.Success())
 	return nil
 }
 
-// 调用块配置改变
-func FeedTypeConfChange(ctx *gin.Context) error {
+//添加调用块配置
+func AddFeedTypeConf(ctx *gin.Context) error {
 	var feedTypeConfForm forms.FeedTypeConfForm
 	if err := ctx.ShouldBind(&feedTypeConfForm); err != nil {
 		return errors.New("params_error")
 	}
-	if err := api_func.FeedTypeConfChangeService(feedTypeConfForm.FeedType, feedTypeConfForm.Conf); err != nil {
+	if err := api_func.AddFeedTypeConfService(feedTypeConfForm.FeedType, feedTypeConfForm.Conf); err != nil {
+		return err
+	}
+	return nil
+}
+
+// 修改调用块配置
+func UpdateFeedTypeConf(ctx *gin.Context) error {
+	var feedTypeConfForm forms.FeedTypeConfForm
+	if err := ctx.ShouldBind(&feedTypeConfForm); err != nil {
+		return errors.New("params_error")
+	}
+	if err := api_func.UpdateFeedTypeConfService(feedTypeConfForm.FeedType, feedTypeConfForm.Conf); err != nil {
 		return errors.New("conf_error")
 	}
 	ctx.JSON(helper.Success())
 	return nil
 }
 
-// topic 数据源改变
-func TopicDataSourceChange(ctx *gin.Context) error {
-	var topicDataSourceForm forms.TopicDataSourceForm
-	if err := ctx.ShouldBind(&topicDataSourceForm); err != nil {
-		return errors.New("params_error")
-	}
-	topicIds := strings.Split(topicDataSourceForm.TopicIds, ",")
-	api_func.TopicDataSourceChangeService(topicDataSourceForm.TopicId, topicIds)
-	ctx.JSON(helper.Success())
-	return nil
-}
-
 // 修改帖子举报规则
-func ChangeThreadReportConf(ctx *gin.Context) error {
+func UpdateThreadReportConf(ctx *gin.Context) error {
 	var reportThreadConf contract.ReportThreadConf
 	if err := ctx.ShouldBind(&reportThreadConf); err != nil {
 		return errors.New("params_error")
 	}
-	api_func.ChangeThreadReportConfService(reportThreadConf)
+	api_func.UpdateThreadReportConfService(reportThreadConf)
 	ctx.JSON(helper.Success())
 	return nil
 }
 
 // 修改用户举报规则
-func ChangeUserReportConf(ctx *gin.Context) error {
+func UpdateUserReportConf(ctx *gin.Context) error {
 	var reportUserConf contract.ReportUserConf
 	if err := ctx.ShouldBind(&reportUserConf); err != nil {
 		return errors.New("params_error")
 	}
-	api_func.ChangeUserReportConfService(reportUserConf)
+	api_func.UpdateUserReportConfService(reportUserConf)
 	ctx.JSON(helper.Success())
 	return nil
 }
 
+//删除指定板块下的数据(tid、uid)
 func DelTopicData(ctx *gin.Context) error {
-	var delTopicFrom forms.DelTopicFrom
-	if err := ctx.ShouldBind(&delTopicFrom); err != nil {
+	var delTopicDataFrom forms.DelTopicDataFrom
+	if err := ctx.ShouldBind(&delTopicDataFrom); err != nil {
 		return errors.New("params_error")
 	}
-	agentName := fmt.Sprintf("%s%s%s", delTopicFrom.TopicId, service.Separator, delTopicFrom.FeedType)
-	ids := strings.Split(delTopicFrom.Ids, ",")
+	agentName := fmt.Sprintf("%s%s%s", delTopicDataFrom.TopicId, service.Separator, delTopicDataFrom.FeedType)
+	ids := strings.Split(delTopicDataFrom.Ids, ",")
 	if err := api_func.DelTopicDataService(agentName, helper.ArrayStrToInt(ids)); err != nil {
 		return err
 	}

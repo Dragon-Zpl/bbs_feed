@@ -32,3 +32,25 @@ func GetAll() []*Model {
 	qs.Filter("is_use", 1).All(&m)
 	return m
 }
+
+func GetOne(name string) (m Model, err error) {
+	o := boot.GetSlaveMySql()
+	qs := o.QueryTable((*Model)(nil))
+	err = qs.Filter("name", name).One(&m)
+	return
+}
+
+func Insert(m Model) (err error) {
+	o := boot.GetMasterMysql()
+	_, err = o.Insert(&m)
+	return err
+}
+
+func UpdateConf(typ string, conf string) (err error) {
+	o := boot.GetMasterMysql()
+	qs := o.QueryTable((*Model)(nil))
+	_, err = qs.Filter("name", typ).Update(orm.Params{
+		"conf": conf,
+	})
+	return
+}

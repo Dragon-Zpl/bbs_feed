@@ -1,42 +1,47 @@
 package api_func
 
 import (
+<<<<<<< HEAD
 	"bbs_feed/boot"
 	"bbs_feed/lib/stringi"
+=======
+	"bbs_feed/model/feed_conf"
+>>>>>>> a09d64169b591812f8d56a69765ffaa87abb171a
 	"bbs_feed/model/feed_permission"
+	"bbs_feed/service"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/kernel/creater"
 	"bbs_feed/v1/forms"
 	"errors"
+<<<<<<< HEAD
 	jsoniter "github.com/json-iterator/go"
+=======
+	"fmt"
+	"strconv"
+>>>>>>> a09d64169b591812f8d56a69765ffaa87abb171a
 	"strings"
 )
 
-// 调用块配置改变
-func FeedTypeConfChangeService(typ string, conf string) error {
-	return creater.InstanceFeedService().ChangeConf(typ, conf)
-}
-
-// topic 数据源改变
-func TopicDataSourceChangeService(topicId string, topicIds []string) {
-	creater.InstanceFeedService().ChangeFids(topicId, topicIds)
-}
+const (
+	NotUse = 0
+	IsUse  = 1
+)
 
 // 增加topic
 func AddTopicService(form forms.TopicForm) error {
 	if err1 := feed_permission.Insert(feed_permission.Model{
-		TopicId:           stringi.ToInt(form.TopicId),
-		HotThread:         stringi.ToInt(form.HotThread),
-		Essence:           stringi.ToInt(form.Essence),
-		TodayIntroduction: stringi.ToInt(form.TodayIntroduction),
-		WeekPopularity:    stringi.ToInt(form.WeekPopularity),
-		WeekContribution:  stringi.ToInt(form.WeekContribution),
+		TopicId:           form.TopicId,
+		HotThread:         form.HotThread,
+		Essence:           form.Essence,
+		TodayIntroduction: form.TodayIntroduction,
+		WeekPopularity:    form.WeekPopularity,
+		WeekContribution:  form.WeekContribution,
 		TopicIds:          form.TopicIds,
 		IsUse:             1,
 	}); err1 != nil {
 		return err1
 	}
-	if agents, err2 := creater.GenAgents(form.TopicId); err2 != nil {
+	if agents, err2 := creater.GenAgents(strconv.Itoa(form.TopicId)); err2 != nil {
 		return errors.New("topic_not_deploy")
 	} else {
 		creater.InstanceFeedService().RegisterService(agents...)
@@ -44,35 +49,90 @@ func AddTopicService(form forms.TopicForm) error {
 	return nil
 }
 
-//添加agent
-func AddAgentService(topicId int, feedTyp string, topicIds []string) error {
-	if agent := creater.GenAgent(topicId, feedTyp, topicIds); agent == nil {
-		creater.InstanceFeedService().RegisterService(agent)
-		return nil
+// 启用、关闭topic
+func UpdateTopicService(topicId int, isUse int) error {
+	if err1 := feed_permission.UpdateIsUse(topicId, isUse); err1 != nil {
+		return err1
+	}
+	if isUse == NotUse { //关闭
+		creater.InstanceFeedService().RemovePusher(strconv.Itoa(topicId))
+	} else if isUse == IsUse { //启用
+		if agents, err2 := creater.GenAgents(strconv.Itoa(topicId)); err2 != nil {
+			return errors.New("topic_not_deploy")
+		} else {
+			creater.InstanceFeedService().RegisterService(agents...)
+		}
+	}
+	return nil
+}
+
+//启用、关闭agent
+func UpdateAgentService(topicId int, feedTyp string, isUse int) error {
+	if err := feed_permission.UpdateFeedType(topicId, feedTyp, isUse); err != nil {
+		return err
+	}
+	if isUse == IsUse { //启用
+		m, _ := feed_permission.GetOne(strconv.Itoa(topicId))
+		topicIds := strings.Split(m.TopicIds, ",")
+
+		if agent := creater.GenAgent(topicId, feedTyp, topicIds); agent == nil {
+			creater.InstanceFeedService().RegisterService(agent)
+		} else {
+			return errors.New("params_error")
+		}
+	} else if isUse == NotUse { //关闭
+		creater.InstanceFeedService().StopAgents(fmt.Sprintf("%d%s%s", topicId, service.Separator, feedTyp))
+	}
+	return nil
+}
+
+// topic 数据源改变
+func UpdateTopicIdsService(topicId string, topicIds string) error {
+	if err := feed_permission.UpdateTopicIds(topicId, topicIds); err != nil {
+		return err
+	}
+	creater.InstanceFeedService().ChangeFids(topicId, strings.Split(topicIds, ","))
+	return nil
+}
+
+//添加调用块配置
+func AddFeedTypeConfService(typ string, conf string) error {
+	if _, err1 := feed_conf.GetOne(typ); err1 != nil {
+		if err2 := feed_conf.Insert(feed_conf.Model{
+			Name:  typ,
+			Conf:  conf,
+			IsUse: 1,
+		}); err2 != nil {
+			return err2
+		} else {
+			return creater.InstanceFeedService().ChangeConf(typ, conf)
+		}
 	} else {
-		return errors.New("params_error")
+		return errors.New("feed_type_exist")
 	}
 }
 
-// 删除topic
-func DelTopicService(topicId string) {
-	feed_permission.UpdateIsUse(topicId, 0)
-	creater.InstanceFeedService().RemovePusher(topicId)
+// 修改调用块配置
+func UpdateFeedTypeConfService(typ string, conf string) error {
+	if err := feed_conf.UpdateConf(typ, conf); err != nil {
+		return err
+	}
+	return creater.InstanceFeedService().ChangeConf(typ, conf)
 }
 
 // 修改帖子举报规则
-func ChangeThreadReportConfService(conf contract.ReportThreadConf) {
+func UpdateThreadReportConfService(conf contract.ReportThreadConf) {
 	creater.ThreadReportCheck.ChangeConf(conf)
+}
+
+// 修改用户举报规则
+func UpdateUserReportConfService(conf contract.ReportUserConf) {
+	creater.UserReportCheck.ChangeConf(conf)
 }
 
 // 帖子举报
 func ThreadReportService(tids []int) {
 	creater.ThreadReportCheck.AcceptReportTids(tids)
-}
-
-// 修改用户举报规则
-func ChangeUserReportConfService(conf contract.ReportUserConf) {
-	creater.UserReportCheck.ChangeConf(conf)
 }
 
 // 用户举报
