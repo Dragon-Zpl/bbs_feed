@@ -4,19 +4,19 @@ import (
 	"bbs_feed/lib/feed_errors"
 	"bbs_feed/lib/helper"
 	"bbs_feed/model/feed_conf"
+	"bbs_feed/model/feed_permission"
 	"bbs_feed/service/api_func"
-	"bbs_feed/v1/forms"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
-var Blocks = map[string]int{"hot_thread": 1, "essence": 1, "today_introduction": 1, "week_popularity": 1, "week_contribution": 1}
-
 func Mapping(prefix string, app *gin.Engine) {
 	admin := app.Group(prefix)
-	admin.GET("/call_back", feed_errors.MdError(GetCallBack))
 	admin.GET("/feed_conf", feed_errors.MdError(GetFeedConf))
+	admin.GET("/feed_premission",feed_errors.MdError(GetPremission))
+	admin.GET("/feed_conf_use",feed_errors.MdError(GetFeedConfUse))
+	admin.GET("/topic",feed_errors.MdError(GetTopic))
 }
 
 func GetFeedConf(ctx *gin.Context) error {
@@ -31,18 +31,26 @@ func GetFeedConf(ctx *gin.Context) error {
 	return nil
 }
 
-func GetCallBack(ctx *gin.Context) error {
-	var callBackArgs forms.CallBackArgs
-	if err := ctx.ShouldBindQuery(&callBackArgs); err != nil {
-		return errors.New("params_error")
-	}
-	if _, ok := Blocks[callBackArgs.Block]; !ok {
-		return errors.New("params_error")
-	}
-	if res_data, err := api_func.GetRedisBlockDataService(callBackArgs.TopicId, callBackArgs.Block); err == nil {
-		ctx.JSON(helper.SuccessWithDate(res_data))
+func GetFeedConfUse(ctx *gin.Context) error{
+	block_datas := api_func.GetFeedConfUseSerive()
+	ctx.JSON(helper.SuccessWithDate(block_datas))
+	return nil
+}
+
+func GetPremission(ctx *gin.Context) error {
+	datas := feed_permission.GetAll()
+	if datas != nil{
+		ctx.JSON(helper.SuccessWithDate(datas))
 	} else {
-		return err
+		return errors.New("sql no found")
+	}
+	return nil
+}
+
+func GetTopic(ctx *gin.Context) error {
+	res_datas := api_func.GetTopicSerive()
+	if res_datas != nil{
+		ctx.JSON(helper.SuccessWithDate(res_datas))
 	}
 	return nil
 }

@@ -1,16 +1,16 @@
 package api_func
 
 import (
-	"bbs_feed/boot"
 	"bbs_feed/model/feed_conf"
 	"bbs_feed/model/feed_permission"
+	"bbs_feed/model/topic"
 	"bbs_feed/service"
+	"bbs_feed/service/kernel/call_block"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/kernel/creater"
 	"bbs_feed/v1/forms"
 	"errors"
 	"fmt"
-	"github.com/json-iterator/go"
 	"strconv"
 	"strings"
 )
@@ -138,18 +138,50 @@ func UserReportService(uids []int) {
 	creater.UserReportCheck.AcceptReportUids(uids)
 }
 
-func GetRedisBlockDataService(topicId string, block string) (res_data []map[string]map[string]interface{}, err error) {
-	if err := feed_permission.GetBlock(topicId, block); err == nil {
-		redis_key := "call_block_" + block + "_" + topicId
-		data, err := boot.InstanceRedisCli(boot.CACHE).ZRange(redis_key, 0, -1).Result()
-		if err != nil {
-			return nil, err
-		}
-		datas := "[" + strings.Join(data, ",") + "]"
-		res_data := make([]map[string]map[string]interface{}, 0, len(data))
-		err = jsoniter.UnmarshalFromString(datas, &res_data)
-		return res_data, nil
-	} else {
-		return nil, err
+// 获取板块可改字段
+func GetFeedConfUseSerive() map[string]interface{} {
+	block_datas := make(map[string]interface{})
+	var (
+		hot            call_block.HotRules
+		essence        call_block.EssenceRules
+		contribution   call_block.ContributionRules
+		weekPopularity call_block.WeekPopularityRule
+		newHot         call_block.NewHotRules
+		todayIntro     call_block.IntroRules
+	)
+
+	block_datas["essenceRules"] = essence
+	block_datas["hotRules"] = hot
+	block_datas["newHotRules"] = newHot
+	block_datas["introRules"] = todayIntro
+	block_datas["weekPopularityRule"] = weekPopularity
+	block_datas["contributionRules"] = contribution
+	return block_datas
+}
+
+func GetTopicSerive() map[string]map[string]interface{} {
+	topic_datas := topic.GetAll()
+	topic_datas_map := make(map[string]string)
+	for _,data := range topic_datas{
+		topic_datas_map[string(data.Id)] = data.Title
 	}
+	pre_mission_datas := feed_permission.GetAll()
+	mission_datas_map := make(map[string]*feed_permission.Model)
+	for _,data := range pre_mission_datas{
+		mission_datas_map[string(data.TopicId)] = data
+	}
+	res_datas := make(map[string]map[string]interface{})
+	for _,data := range topic_datas{
+		pre_mis_data := mission_datas_map[string(data.Id)]
+		topicids := strings.Split(pre_mis_data.TopicIds,",")
+		all_titles := make([]string,0)
+		for _,topicid := range topicids{
+			if data,ok :=topic_datas_map[topicid]; ok{
+				all_titles = append(all_titles, data)
+			}
+			all_titles = append(all_titles, data.Title)
+		}
+		res_datas[data.Title]["titles"] = all_titles
+	}
+	return res_datas
 }

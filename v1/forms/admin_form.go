@@ -60,6 +60,9 @@ type CallBackArgs struct {
 	Block   string `form:"block" binding:"required"`
 }
 
+
+var Blocks = map[string]string{"hot_thread": "hot", "essence": "essence", "today_introduction": "today_introduction", "week_popularity": "week_popularity", "week_contribution": "week_contribution"}
+
 //type ThreadStruct struct {
 //	Tid int `json:"tid"`
 //	Fid int `json:"fid"`
