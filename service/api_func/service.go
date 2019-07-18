@@ -121,6 +121,11 @@ func UpdateUserReportConfService(conf contract.ReportUserConf) {
 	creater.UserReportCheck.ChangeConf(conf)
 }
 
+//删除指定板块下的数据
+func DelTopicDataService(agentName string, ids []int) error {
+	return creater.InstanceFeedService().Remove(agentName, ids)
+}
+
 // 帖子举报
 func ThreadReportService(tids []int) {
 	creater.ThreadReportCheck.AcceptReportTids(tids)
@@ -129,8 +134,4 @@ func ThreadReportService(tids []int) {
 // 用户举报
 func UserReportService(uids []int) {
 	creater.UserReportCheck.AcceptReportUids(uids)
-}
-
-func DelTopicDataService(agentName string, ids []int) error {
-	return creater.InstanceFeedService().Remove(agentName, ids)
 }

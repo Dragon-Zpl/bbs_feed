@@ -162,6 +162,7 @@ func ThreadReport(ctx *gin.Context) error {
 }
 
 // 用户举报
+//TODO 待确定
 func UserReport(ctx *gin.Context) error {
 	var userReportForm forms.UserReportForm
 	if err := ctx.ShouldBind(&userReportForm); err != nil {
@@ -173,6 +174,7 @@ func UserReport(ctx *gin.Context) error {
 	return nil
 }
 
+//添加额外信息
 func AddCallBlockTrait(ctx *gin.Context) error {
 	var traitFrom forms.TraitFrom
 	if err := ctx.ShouldBind(&traitFrom); err != nil {
