@@ -14,12 +14,12 @@ type RedisThread struct {
 }
 
 // 获取hot排序后的thread
-func GetHotSortThread(fids []int, day, views, replys int) []RedisThread {
+func GetHotSortThread(fids []int, day, views, replys int, limit int) []RedisThread {
 	var (
 		hotThreads   HotThread
 		redisThreads []RedisThread
 	)
-	hotThreads = forum_thread.GetHotThreads(fids, day, views, replys)
+	hotThreads = forum_thread.GetHotThreads(fids, day, views, replys, limit)
 	redisThreads = make([]RedisThread, 0, len(hotThreads))
 
 	sort.Sort(hotThreads)
@@ -32,12 +32,12 @@ func GetHotSortThread(fids []int, day, views, replys int) []RedisThread {
 }
 
 // 获取 精华 排序后的thread
-func GetEssenceSortThread(fids []int, day int) []RedisThread {
+func GetEssenceSortThread(fids []int, day int, limit int) []RedisThread {
 	var (
 		essEnceThreads EssenceThread
 		redisThreads   []RedisThread
 	)
-	essEnceThreads = forum_thread.GetEssenceThreads(fids, day)
+	essEnceThreads = forum_thread.GetEssenceThreads(fids, day, limit)
 	redisThreads = make([]RedisThread, 0, len(essEnceThreads))
 
 	sort.Sort(essEnceThreads)
@@ -50,12 +50,12 @@ func GetEssenceSortThread(fids []int, day int) []RedisThread {
 }
 
 // 获取今日导读排序后的thread
-func GetTodayIntroSortThread(fids []int, day int) []RedisThread {
+func GetTodayIntroSortThread(fids []int, day int, limit int) []RedisThread {
 	var (
 		todayIntroThreads TodayIntroThread
 		redisThreads      []RedisThread
 	)
-	todayIntroThreads = forum_thread.GetHotThreads(fids, day, 0, 0)
+	todayIntroThreads = forum_thread.GetHotThreads(fids, day, 0, 0, limit)
 	redisThreads = make([]RedisThread, 0, len(todayIntroThreads))
 
 	sort.Sort(todayIntroThreads)
@@ -68,12 +68,12 @@ func GetTodayIntroSortThread(fids []int, day int) []RedisThread {
 }
 
 // 获取new hot排序后的thread
-func GetNewHotSortThread(fids []int, day int) []RedisThread {
+func GetNewHotSortThread(fids []int, day int, limit int) []RedisThread {
 	var (
 		newHotThreads NewHotThread
 		redisThreads  []RedisThread
 	)
-	newHotThreads = forum_thread.GetHotThreads(fids, day, 0, 0)
+	newHotThreads = forum_thread.GetHotThreads(fids, day, 0, 0, limit)
 	redisThreads = make([]RedisThread, 0, len(newHotThreads))
 
 	sort.Sort(newHotThreads)

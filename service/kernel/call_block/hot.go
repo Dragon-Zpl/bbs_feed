@@ -25,6 +25,7 @@ type HotRules struct {
 	ViewCount  int `json:"viewCount"`
 	ReplyCount int `json:"replyCount"`
 	CronExp    int `json:"cronExp"` // 周期时间
+	Limit      int `json:"limit"`
 }
 
 type Hot struct {
@@ -100,7 +101,7 @@ func (this *Hot) Start() {
 
 // 写 reids
 func (this *Hot) worker() {
-	redisThreads := data_source.GetHotSortThread(topic_fid_relation.GetFids(this.topicIds), this.hotRules.Day, this.hotRules.ViewCount, this.hotRules.ReplyCount)
+	redisThreads := data_source.GetHotSortThread(topic_fid_relation.GetFids(this.topicIds), this.hotRules.Day, this.hotRules.ViewCount, this.hotRules.ReplyCount, this.hotRules.Limit)
 	redisTraits, _ := boot.InstanceRedisCli(boot.CACHE).HGetAll(this.traitRedisKey()).Result()
 
 	datas := make([]interface{}, 0, len(redisThreads))

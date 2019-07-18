@@ -37,11 +37,11 @@ func (m *Model) TableName() string {
 	return tablename
 }
 
-func GetHotThreads(fids []int, day, views, replys int) []*Model {
+func GetHotThreads(fids []int, day, views, replys, limit int) []*Model {
 	o := boot.GetSlaveMySql()
 	qs := o.QueryTable((*Model)(nil))
 	ms := make([]*Model, 0)
-	qs.Filter("displayorder__gte", 0).Filter("fid__in", fids).Filter("dateline__gte", helper.PreNDayTime(day)).Filter("views__gte", views).Filter("replies__gte", replys).Limit(400).All(&ms)
+	qs.Filter("displayorder__gte", 0).Filter("fid__in", fids).Filter("dateline__gte", helper.PreNDayTime(day)).Filter("views__gte", views).Filter("replies__gte", replys).Limit(limit).All(&ms)
 	return ms
 }
 
@@ -53,10 +53,21 @@ func GetByTids(tids []int) []*Model {
 	return ms
 }
 
-func GetEssenceThreads(fids []int, day int) []*Model {
+func GetEssenceThreads(fids []int, day, limit int) []*Model {
 	o := boot.GetSlaveMySql()
 	qs := o.QueryTable((*Model)(nil))
 	ms := make([]*Model, 0)
-	qs.Filter("displayorder__gte", 0).Filter("digest", 1).Filter("fid__in", fids).Filter("dateline__gte", helper.PreNDayTime(day)).All(&ms)
+	qs.Filter("displayorder__gte", 0).Filter("digest", 1).Filter("fid__in", fids).Filter("dateline__gte", helper.PreNDayTime(day)).Limit(limit).All(&ms)
 	return ms
+}
+
+func UpdateDisplayorder(tids []int) (err error) {
+	o := boot.GetMasterMysql()
+	qs := o.QueryTable((*Model)(nil))
+	for _, tid := range tids {
+		_, err = qs.Filter("tid", tid).Update(orm.Params{
+			"displayorder": -2,
+		})
+	}
+	return
 }

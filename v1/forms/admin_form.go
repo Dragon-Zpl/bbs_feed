@@ -3,24 +3,25 @@ package forms
 import "bbs_feed/service"
 
 type TopicForm struct {
-	TopicId           int    `form:"topicId" binding:"required"`
-	HotThread         int    `form:"hotThread" binding:"required"`
-	Essence           int    `form:"essence" binding:"required"`
-	TodayIntroduction int    `form:"todayIntroduction" binding:"required"`
-	WeekPopularity    int    `form:"weekPopularity" binding:"required"`
-	WeekContribution  int    `form:"weekContribution" binding:"required"`
+	TopicId           int    `form:"topicId"`
+	Hot               int    `form:"hot" `
+	NewHot            int    `form:"newHot"`
+	Essence           int    `form:"essence"`
+	TodayIntroduction int    `form:"todayIntroduction"`
+	WeekPopularity    int    `form:"weekPopularity"`
+	WeekContribution  int    `form:"weekContribution"`
 	TopicIds          string `form:"topicIds" binding:"required"`
 }
 
 type UpdateTopicForm struct {
-	TopicId int `form:"topicId" binding:"required"`
-	IsUse   int `form:"isUse" binding:"required"`
+	TopicId int `form:"topicId"`
+	IsUse   int `form:"isUse"`
 }
 
 type AgentForm struct {
-	TopicId  int    `form:"topicId" binding:"required"`
+	TopicId  int    `form:"topicId"`
 	FeedType string `form:"feedType" binding:"required"`
-	IsUse    int    `form:"isUse" binding:"required"`
+	IsUse    int    `form:"isUse"`
 }
 
 type FeedTypeConfForm struct {
@@ -51,7 +52,7 @@ type TraitFrom struct {
 	Id       string                 `form:"id"`
 	TopicId  string                 `form:"topicId" binding:"required"`
 	FeedType string                 `form:"feedType" binding:"required"`
-	Exp      int                    `form:"exp" binding:"required"`
+	Exp      int                    `form:"exp"`
 	Trait    service.CallBlockTrait `form:"trait"`
 }
 

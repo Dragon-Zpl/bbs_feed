@@ -11,8 +11,9 @@ import (
 
 type ContributionRules struct {
 	CronExp time.Duration `json:"cronExp"` // 周期时间
-	Views   int `json:"views"`
-	Replys  int `json:"replys"`
+	Views   int           `json:"views"`
+	Replys  int           `json:"replys"`
+	Limit   int           `json:"limit"`
 }
 
 type Contribution struct {

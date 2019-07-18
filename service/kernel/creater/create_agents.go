@@ -19,7 +19,7 @@ type AgentGen func(int, []string) contract.Agent
 var once sync.Once
 
 var AgentMapping = map[string]AgentGen{
-	"hotThread":         HotThread(),
+	"hot":               HotThread(),
 	"essence":           Essence(),
 	"newHot":            NewHot(),
 	"todayIntroduction": TodayIntroduction(),

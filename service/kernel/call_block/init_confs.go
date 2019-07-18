@@ -26,14 +26,14 @@ func InitConfs() {
 			json.Unmarshal([]byte(conf.Conf), &hot)
 		case "essence":
 			json.Unmarshal([]byte(conf.Conf), &essence)
-		case "contribution":
+		case "newHot":
+			json.Unmarshal([]byte(conf.Conf), &newHot)
+		case "todayIntroduction":
+			json.Unmarshal([]byte(conf.Conf), &todayIntro)
+		case "weekContribution":
 			json.Unmarshal([]byte(conf.Conf), &contribution)
 		case "weekPopularity":
 			json.Unmarshal([]byte(conf.Conf), &weekPopularity)
-		case "hotNew":
-			json.Unmarshal([]byte(conf.Conf), &newHot)
-		case "todayIntro":
-			json.Unmarshal([]byte(conf.Conf), &todayIntro)
 		}
 	}
 }

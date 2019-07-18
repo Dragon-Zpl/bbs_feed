@@ -21,6 +21,7 @@ const CALl_BLOCK_NEW_HOT_TRAIT = "call_block_new_hot_trait"
 type NewHotRules struct {
 	Day     int `json:"day"`
 	CronExp int `json:"cronExp"` // 周期时间
+	Limit      int `json:"limit"`
 }
 
 type NewHots struct {
@@ -90,7 +91,7 @@ func (this *NewHots) Start() {
 
 // 写 reids
 func (this *NewHots) worker() {
-	redisThreads := data_source.GetNewHotSortThread(topic_fid_relation.GetFids(this.topicIds), this.newHotRules.Day)
+	redisThreads := data_source.GetNewHotSortThread(topic_fid_relation.GetFids(this.topicIds), this.newHotRules.Day,this.newHotRules.Limit)
 	redisTraits, _ := boot.InstanceRedisCli(boot.CACHE).HGetAll(this.traitRedisKey()).Result()
 
 	datas := make([]interface{}, 0, len(redisThreads))
