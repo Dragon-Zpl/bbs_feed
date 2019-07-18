@@ -8,6 +8,7 @@ import (
 	"bbs_feed/service/api_func"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/redis_ops"
+	"bbs_feed/v1/forms"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -21,6 +22,7 @@ func Mapping(prefix string, app *gin.Engine) {
 	admin.POST("/topic", feed_errors.MdError(AddTopic))
 	admin.POST("/agnet", feed_errors.MdError(AddAgent))
 	admin.DELETE("/topic/:id", feed_errors.MdError(DelTopic))
+	//TODO DelAgent
 	admin.PUT("/topic/conf", feed_errors.MdError(FeedTypeConfChange))
 	admin.PUT("/topic/fids", feed_errors.MdError(TopicDataSourceChange))
 	admin.PUT("/thread/report_conf", feed_errors.MdError(ChangeThreadReportConf))
@@ -31,32 +33,22 @@ func Mapping(prefix string, app *gin.Engine) {
 	admin.POST("/trait", feed_errors.MdError(AddCallBlockTrait))
 }
 
-type TopicForm struct {
-	TopicId string `form:"topicId" binding:"required"`
-}
-
 // 增加topic
 func AddTopic(ctx *gin.Context) error {
-	var topicForm TopicForm
+	var topicForm forms.TopicForm
 	if err := ctx.ShouldBind(&topicForm); err != nil {
 		return errors.New("params_error")
 	}
-	if err := api_func.AddTopicService(topicForm.TopicId); err != nil {
+	if err := api_func.AddTopicService(topicForm); err != nil {
 		return err
 	}
 	ctx.JSON(helper.Success())
 	return nil
 }
 
-type AgentForm struct {
-	TopicId  int    `form:"topicId" binding:"required"`
-	FeedType string `form:"feedType" binding:"required"`
-	TopicIds string `form:"topicIds" binding:"required"`
-}
-
 // 添加agent
 func AddAgent(ctx *gin.Context) error {
-	var agentForm AgentForm
+	var agentForm forms.AgentForm
 	if err := ctx.ShouldBind(&agentForm); err != nil {
 		return errors.New("params_error")
 	}
@@ -80,14 +72,9 @@ func DelTopic(ctx *gin.Context) error {
 	return nil
 }
 
-type FeedTypeConfForm struct {
-	FeedType string `form:"feedType" binding:"required"`
-	Conf     string `form:"conf" binding:"required"`
-}
-
 // 调用块配置改变
 func FeedTypeConfChange(ctx *gin.Context) error {
-	var feedTypeConfForm FeedTypeConfForm
+	var feedTypeConfForm forms.FeedTypeConfForm
 	if err := ctx.ShouldBind(&feedTypeConfForm); err != nil {
 		return errors.New("params_error")
 	}
@@ -98,14 +85,9 @@ func FeedTypeConfChange(ctx *gin.Context) error {
 	return nil
 }
 
-type TopicDataSourceForm struct {
-	TopicId  string `form:"topicId" binding:"required"`
-	TopicIds string `form:"topicIds" binding:"required"`
-}
-
 // topic 数据源改变
 func TopicDataSourceChange(ctx *gin.Context) error {
-	var topicDataSourceForm TopicDataSourceForm
+	var topicDataSourceForm forms.TopicDataSourceForm
 	if err := ctx.ShouldBind(&topicDataSourceForm); err != nil {
 		return errors.New("params_error")
 	}
@@ -126,10 +108,6 @@ func ChangeThreadReportConf(ctx *gin.Context) error {
 	return nil
 }
 
-type ThreadReportForm struct {
-	ThreadIds string `form:"threadIds" binding:"required"`
-}
-
 // 修改用户举报规则
 func ChangeUserReportConf(ctx *gin.Context) error {
 	var reportUserConf contract.ReportUserConf
@@ -141,14 +119,8 @@ func ChangeUserReportConf(ctx *gin.Context) error {
 	return nil
 }
 
-type DelTopicFrom struct {
-	TopicId  string `form:"topicId" binding:"required"`
-	FeedType string `form:"feedType" binding:"required"`
-	Ids      string `form:"ids" binding:"required"` //删除指定板块下的tid/uid
-}
-
 func DelTopicData(ctx *gin.Context) error {
-	var delTopicFrom DelTopicFrom
+	var delTopicFrom forms.DelTopicFrom
 	if err := ctx.ShouldBind(&delTopicFrom); err != nil {
 		return errors.New("params_error")
 	}
@@ -163,7 +135,7 @@ func DelTopicData(ctx *gin.Context) error {
 
 // 帖子举报
 func ThreadReport(ctx *gin.Context) error {
-	var threadReportForm ThreadReportForm
+	var threadReportForm forms.ThreadReportForm
 	if err := ctx.ShouldBind(&threadReportForm); err != nil {
 		return errors.New("params_error")
 	}
@@ -173,13 +145,9 @@ func ThreadReport(ctx *gin.Context) error {
 	return nil
 }
 
-type UserReportForm struct {
-	UserIds string `form:"userIds" binding:"required"`
-}
-
 // 用户举报
 func UserReport(ctx *gin.Context) error {
-	var userReportForm UserReportForm
+	var userReportForm forms.UserReportForm
 	if err := ctx.ShouldBind(&userReportForm); err != nil {
 		return errors.New("params_error")
 	}
@@ -189,16 +157,8 @@ func UserReport(ctx *gin.Context) error {
 	return nil
 }
 
-type TraitFrom struct {
-	Id       string                 `form:"id"`
-	TopicId  string                 `form:"topicId" binding:"required"`
-	FeedType string                 `form:"feedType" binding:"required"`
-	Exp      int                    `form:"exp" binding:"required"`
-	Trait    service.CallBlockTrait `form:"trait"`
-}
-
 func AddCallBlockTrait(ctx *gin.Context) error {
-	var traitFrom TraitFrom
+	var traitFrom forms.TraitFrom
 	if err := ctx.ShouldBind(&traitFrom); err != nil {
 		return errors.New("params_error")
 	}
