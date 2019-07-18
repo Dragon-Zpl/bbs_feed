@@ -44,6 +44,14 @@ func GetOne(topicId string) (m Model, err error) {
 	return
 }
 
+func GetBlock(topicId, block string) (err error){
+	var m Model
+	o := boot.GetSlaveMySql()
+	qs := o.QueryTable((*Model)(nil))
+	err = qs.Filter("topicId", topicId).Filter(block, 1).One(&m)
+	return
+}
+
 //1代表使用，0代表未使用
 func UpdateIsUse(topicId string, isUse int) (err error) {
 	o := boot.GetMasterMysql()
