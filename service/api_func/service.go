@@ -1,9 +1,11 @@
 package api_func
 
 import (
+	"bbs_feed/lib/stringi"
 	"bbs_feed/model/feed_permission"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/kernel/creater"
+	"bbs_feed/v1/forms"
 	"errors"
 )
 
@@ -18,8 +20,20 @@ func TopicDataSourceChangeService(topicId string, topicIds []string) {
 }
 
 // 增加topic
-func AddTopicService(topicId string) error {
-	if agents, err := creater.GenAgents(topicId); err != nil {
+func AddTopicService(form forms.TopicForm) error {
+	if err1 := feed_permission.Insert(feed_permission.Model{
+		TopicId:           stringi.ToInt(form.TopicId),
+		HotThread:         stringi.ToInt(form.HotThread),
+		Essence:           stringi.ToInt(form.Essence),
+		TodayIntroduction: stringi.ToInt(form.TodayIntroduction),
+		WeekPopularity:    stringi.ToInt(form.WeekPopularity),
+		WeekContribution:  stringi.ToInt(form.WeekContribution),
+		TopicIds:          form.TopicIds,
+		IsUse:             1,
+	}); err1 != nil {
+		return err1
+	}
+	if agents, err2 := creater.GenAgents(form.TopicId); err2 != nil {
 		return errors.New("topic_not_deploy")
 	} else {
 		creater.InstanceFeedService().RegisterService(agents...)

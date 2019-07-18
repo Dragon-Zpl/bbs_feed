@@ -61,3 +61,9 @@ func UpdateIsUse(topicId string, isUse int) (err error) {
 	})
 	return
 }
+
+func Insert(m Model) error {
+	o := boot.GetMasterMysql()
+	_, err := o.Insert(&m)
+	return err
+}
