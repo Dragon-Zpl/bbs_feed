@@ -1,6 +1,7 @@
 package api_func
 
 import (
+	"bbs_feed/boot"
 	"bbs_feed/model/feed_conf"
 	"bbs_feed/model/feed_permission"
 	"bbs_feed/service"
@@ -9,6 +10,7 @@ import (
 	"bbs_feed/v1/forms"
 	"errors"
 	"fmt"
+	"github.com/json-iterator/go"
 	"strconv"
 	"strings"
 )
@@ -134,4 +136,20 @@ func ThreadReportService(tids []int) {
 // 用户举报
 func UserReportService(uids []int) {
 	creater.UserReportCheck.AcceptReportUids(uids)
+}
+
+func GetRedisBlockDataService(topicId string, block string) (res_data []map[string]map[string]interface{}, err error) {
+	if err := feed_permission.GetBlock(topicId, block); err == nil {
+		redis_key := "call_block_" + block + "_" + topicId
+		data, err := boot.InstanceRedisCli(boot.CACHE).ZRange(redis_key, 0, -1).Result()
+		if err != nil {
+			return nil, err
+		}
+		datas := "[" + strings.Join(data, ",") + "]"
+		res_data := make([]map[string]map[string]interface{}, 0, len(data))
+		err = jsoniter.UnmarshalFromString(datas, &res_data)
+		return res_data, nil
+	} else {
+		return nil, err
+	}
 }
