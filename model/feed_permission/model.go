@@ -14,14 +14,16 @@ func init() {
 }
 
 type Model struct {
-	TopicId           int    `orm:"pk;column(topic_id)"`
-	HotThread         int    `orm:"column(hot_thread)" json:"hotThread"`
+	TopicId           int    `orm:"pk;column(topic_id)" json:"topicId"`
+	Fid               int    `orm:"column(fid)" json:"fid"`
+	Hot               int    `orm:"column(hot)" json:"hot"`
+	NewHot            int    `orm:"column(newHot)" json:"newHot"`
 	Essence           int    `orm:"column(essence)" json:"essence"`
-	TodayIntroduction int    `orm:"column(today_introduction)" json:"todayIntroduction"`
-	WeekPopularity    int    `orm:"column(week_popularity)" json:"weekPopularity"`
-	WeekContribution  int    `orm:"column(week_contribution)" json:"weekContribution"`
-	TopicIds          string `orm:"column(topic_ids)"`
-	IsUse             int    `orm:"column(is_use)"`
+	TodayIntroduction int    `orm:"column(todayIntroduction)" json:"todayIntroduction"`
+	WeekPopularity    int    `orm:"column(weekPopularity)" json:"weekPopularity"`
+	WeekContribution  int    `orm:"column(weekContribution)" json:"weekContribution"`
+	TopicIds          string `orm:"column(topic_ids)" json:"topicIds"`
+	IsUse             int    `orm:"column(is_use)" json:"isUse"`
 }
 
 // 实现表名的接口

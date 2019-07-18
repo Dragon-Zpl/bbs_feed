@@ -35,7 +35,7 @@ func (this *FeedService) RegisterService(agents ...Agent) {
 			this.StopAgents(agent.GetName())
 		}
 		agent.Init()
-		agent.Start()
+		go agent.Start()
 		this.Agents[agent.GetName()] = agent
 	}
 	return

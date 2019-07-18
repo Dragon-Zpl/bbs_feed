@@ -23,6 +23,7 @@ const CALl_BLOCK_ESSENCE_THREAD_TRAIT = "call_block_essence_trait"
 type EssenceRules struct {
 	CronExp int `json:"cronExp"` // 周期时间 min
 	Day     int `json:"day"`
+	Limit   int `json:"limit"`
 }
 
 type Essence struct {
@@ -112,7 +113,7 @@ func (this *Essence) AddTrait(id string, trait service.CallBlockTrait) {
 
 // 写 reids
 func (this *Essence) worker() {
-	redisThreads := data_source.GetEssenceSortThread(topic_fid_relation.GetFids(this.topicIds), this.essenceRules.Day)
+	redisThreads := data_source.GetEssenceSortThread(topic_fid_relation.GetFids(this.topicIds), this.essenceRules.Day, this.essenceRules.Limit)
 	redisTraits, _ := boot.InstanceRedisCli(boot.CACHE).HGetAll(this.traitRedisKey()).Result()
 
 	datas := make([]interface{}, 0, len(redisThreads))

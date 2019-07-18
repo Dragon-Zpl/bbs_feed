@@ -4,6 +4,8 @@ import (
 	"bbs_feed/boot"
 	"bbs_feed/model/feed_conf"
 	"bbs_feed/model/feed_permission"
+	"bbs_feed/model/forum_thread"
+	"bbs_feed/model/topic_fid_relation"
 	"bbs_feed/service"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/kernel/creater"
@@ -22,9 +24,12 @@ const (
 
 // 增加topic
 func AddTopicService(form forms.TopicForm) error {
+	fid := topic_fid_relation.GetFids([]string{strconv.Itoa(form.TopicId)})
 	if err1 := feed_permission.Insert(feed_permission.Model{
 		TopicId:           form.TopicId,
-		HotThread:         form.HotThread,
+		Fid:               fid[0],
+		Hot:               form.Hot,
+		NewHot:            form.NewHot,
 		Essence:           form.Essence,
 		TodayIntroduction: form.TodayIntroduction,
 		WeekPopularity:    form.WeekPopularity,
@@ -123,14 +128,13 @@ func UpdateUserReportConfService(conf contract.ReportUserConf) {
 	creater.UserReportCheck.ChangeConf(conf)
 }
 
-//删除指定板块下的数据
-func DelTopicDataService(agentName string, ids []int) error {
-	return creater.InstanceFeedService().Remove(agentName, ids)
-}
-
 // 帖子举报
-func ThreadReportService(tids []int) {
+func ThreadReportService(tids []int) error {
+	if err := forum_thread.UpdateDisplayorder(tids); err != nil {
+		return err
+	}
 	creater.ThreadReportCheck.AcceptReportTids(tids)
+	return nil
 }
 
 // 用户举报

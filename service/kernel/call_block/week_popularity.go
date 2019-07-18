@@ -11,6 +11,7 @@ import (
 
 type WeekPopularityRule struct {
 	CronExp time.Duration `json:"cronExp"` // 周期时间
+	Limit   int           `json:"limit"`
 }
 
 type WeekPopularity struct {

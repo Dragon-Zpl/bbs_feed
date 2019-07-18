@@ -10,9 +10,10 @@ import (
 //贡献榜
 
 type ContributionRules struct {
-	cronExp time.Duration // 周期时间
-	views   int
-	replys  int
+	CronExp time.Duration `json:"cronExp"` // 周期时间
+	Views   int           `json:"views"`
+	Replys  int           `json:"replys"`
+	Limit   int           `json:"limit"`
 }
 
 type Contribution struct {
@@ -66,12 +67,12 @@ func (this *Contribution) ChangeConf(conf interface{}) {
 }
 
 func (this *Contribution) Start() {
-	t := time.NewTimer(this.ContributionRules.cronExp)
+	t := time.NewTimer(this.ContributionRules.CronExp)
 	for {
 		select {
 		case <-t.C:
 			// todo  根据配置 写redis数据
-			t.Reset(this.ContributionRules.cronExp)
+			t.Reset(this.ContributionRules.CronExp)
 		case <-this.Ctx.Done():
 			return
 		}

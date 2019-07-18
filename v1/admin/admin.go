@@ -3,13 +3,13 @@ package admin
 import (
 	"bbs_feed/lib/feed_errors"
 	"bbs_feed/lib/helper"
-	"bbs_feed/service"
 	"bbs_feed/service/api_func"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/redis_ops"
 	"bbs_feed/v1/forms"
 	"errors"
 	"fmt"
+	"github.com/astaxie/beego/logs"
 	"github.com/gin-gonic/gin"
 	"github.com/json-iterator/go"
 	"strings"
@@ -28,10 +28,10 @@ func Mapping(prefix string, app *gin.Engine) {
 
 	admin.PUT("/thread/report_conf", feed_errors.MdError(UpdateThreadReportConf))
 	admin.PUT("/user/report_conf", feed_errors.MdError(UpdateUserReportConf))
-	admin.DELETE("/call_back", feed_errors.MdError(DelTopicData))
 
 	admin.POST("/report/thread", feed_errors.MdError(ThreadReport))
 	admin.POST("/report/user", feed_errors.MdError(UserReport))
+
 	admin.POST("/trait", feed_errors.MdError(AddCallBlockTrait))
 }
 
@@ -39,6 +39,7 @@ func Mapping(prefix string, app *gin.Engine) {
 func AddTopic(ctx *gin.Context) error {
 	var topicForm forms.TopicForm
 	if err := ctx.ShouldBind(&topicForm); err != nil {
+		logs.Error(err)
 		return errors.New("params_error")
 	}
 	if err := api_func.AddTopicService(topicForm); err != nil {
@@ -134,21 +135,6 @@ func UpdateUserReportConf(ctx *gin.Context) error {
 	return nil
 }
 
-//删除指定板块下的数据(tid、uid)
-func DelTopicData(ctx *gin.Context) error {
-	var delTopicDataFrom forms.DelTopicDataFrom
-	if err := ctx.ShouldBind(&delTopicDataFrom); err != nil {
-		return errors.New("params_error")
-	}
-	agentName := fmt.Sprintf("%s%s%s", delTopicDataFrom.TopicId, service.Separator, delTopicDataFrom.FeedType)
-	ids := strings.Split(delTopicDataFrom.Ids, ",")
-	if err := api_func.DelTopicDataService(agentName, helper.ArrayStrToInt(ids)); err != nil {
-		return err
-	}
-	ctx.JSON(helper.Success())
-	return nil
-}
-
 // 帖子举报
 func ThreadReport(ctx *gin.Context) error {
 	var threadReportForm forms.ThreadReportForm
@@ -156,12 +142,14 @@ func ThreadReport(ctx *gin.Context) error {
 		return errors.New("params_error")
 	}
 	tids := strings.Split(threadReportForm.ThreadIds, ",")
-	api_func.ThreadReportService(helper.ArrayStrToInt(tids))
+	if err := api_func.ThreadReportService(helper.ArrayStrToInt(tids)); err != nil {
+		return err
+	}
 	ctx.JSON(helper.Success())
 	return nil
 }
 
-// 用户举报
+// 违禁用户
 //TODO 待确定
 func UserReport(ctx *gin.Context) error {
 	var userReportForm forms.UserReportForm
