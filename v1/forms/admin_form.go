@@ -49,3 +49,28 @@ type TraitFrom struct {
 	Exp      int                    `form:"exp" binding:"required"`
 	Trait    service.CallBlockTrait `form:"trait"`
 }
+
+
+type CallBackArgs struct {
+	TopicId string `form:"topicId" binding:"required"`
+	Block string `form:"block" binding:"required"`
+}
+
+//type ThreadStruct struct {
+//	Tid int `json:"tid"`
+//	Fid int `json:"fid"`
+//	Author string `json:"author"`
+//	AuthorId int `json:"authorId"`
+//	Subject string `json:"subject"`
+//	Dateline int `json:"dateline"`
+//}
+//
+//type TraitStruct struct {
+//	IsSetTop bool `json:"isSetTop"`
+//	Subscript string `json:"subscript"`
+//}
+//
+//type RedisEssence struct {
+//	Thread ThreadStruct `json:"thread"`
+//	Trait TraitStruct `json:"trait"`
+//}

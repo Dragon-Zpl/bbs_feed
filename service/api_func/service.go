@@ -1,12 +1,15 @@
 package api_func
 
 import (
+	"bbs_feed/boot"
 	"bbs_feed/lib/stringi"
 	"bbs_feed/model/feed_permission"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/kernel/creater"
 	"bbs_feed/v1/forms"
 	"errors"
+	jsoniter "github.com/json-iterator/go"
+	"strings"
 )
 
 // 调用块配置改变
@@ -79,4 +82,20 @@ func UserReportService(uids []int) {
 
 func DelTopicDataService(agentName string, ids []int) error {
 	return creater.InstanceFeedService().Remove(agentName, ids)
+}
+
+func GetRedisBlockDataService(topicId string, block string) (res_data []map[string]map[string]interface{}, err error){
+	if err := feed_permission.GetBlock(topicId, block) ; err==nil{
+		redis_key := "call_block_" + block + "_" + topicId
+		data, err := boot.InstanceRedisCli(boot.CACHE).ZRange(redis_key,0,-1).Result()
+		if err != nil{
+			return nil, err
+		}
+		datas := "["+ strings.Join(data,",") + "]"
+		res_data := make([]map[string]map[string]interface{}, 0, len(data))
+		err = jsoniter.UnmarshalFromString(datas, &res_data)
+		return res_data, nil
+	} else {
+		return nil, err
+	}
 }
