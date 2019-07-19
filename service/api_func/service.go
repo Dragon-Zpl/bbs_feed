@@ -164,28 +164,37 @@ func GetFeedConfUseSerive() map[string]interface{} {
 }
 
 func GetTopicSerive() map[string]map[string]interface{} {
-	topic_datas := topic.GetAll()
-	topic_datas_map := make(map[string]string)
-	for _,data := range topic_datas{
-		topic_datas_map[string(data.Id)] = data.Title
+	topicDatas := topic.GetAll()
+	topicDatasMap := make(map[string]string)
+	for _,data := range topicDatas{
+		topicDatasMap[strconv.Itoa(data.Id)] = data.Title
 	}
-	pre_mission_datas := feed_permission.GetAll()
-	mission_datas_map := make(map[string]*feed_permission.Model)
-	for _,data := range pre_mission_datas{
-		mission_datas_map[string(data.TopicId)] = data
+	preMisDatas := feed_permission.GetAll()
+	preMissDataMap := make(map[string]*feed_permission.Model)
+	for _,data := range preMisDatas{
+		preMissDataMap[strconv.Itoa(data.TopicId)] = data
 	}
 	res_datas := make(map[string]map[string]interface{})
-	for _,data := range topic_datas{
-		pre_mis_data := mission_datas_map[string(data.Id)]
-		topicids := strings.Split(pre_mis_data.TopicIds,",")
+	for _,data := range topicDatas{
+		if _,ok := preMissDataMap[strconv.Itoa(data.Id)]; !ok{
+			titles := make(map[string]interface{})
+			titles["titles"] = ""
+			titles["isuse"] = 0
+			res_datas[data.Title] = titles
+			continue
+		}
+		preMisData := preMissDataMap[strconv.Itoa(data.Id)]
+		topicids := strings.Split(preMisData.TopicIds,",")
 		all_titles := make([]string,0)
 		for _,topicid := range topicids{
-			if data,ok :=topic_datas_map[topicid]; ok{
+			if data,ok :=topicDatasMap[topicid]; ok{
 				all_titles = append(all_titles, data)
 			}
-			all_titles = append(all_titles, data.Title)
 		}
-		res_datas[data.Title]["titles"] = all_titles
+		titles := make(map[string]interface{})
+		titles["titles"] = all_titles
+		titles["isuse"] = preMisData.IsUse
+		res_datas[data.Title] = titles
 	}
 	return res_datas
 }
