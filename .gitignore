@@ -5,3 +5,4 @@ main
 go_build_main_go
 debug
 *.exe
+test.go

@@ -13,6 +13,8 @@ import (
 	"bbs_feed/v1/forms"
 	"errors"
 	"fmt"
+	"log"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -147,7 +149,23 @@ func UserReportService(uids []int) {
 func DelTopicDataService(agentName string, ids []int) error {
 	return creater.InstanceFeedService().Remove(agentName, ids)
 }
-
+// 获取结构体的字段
+func GetFieldName(structName interface{}) []string {
+	t := reflect.TypeOf(structName)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		log.Println("Check type error not Struct")
+		return nil
+	}
+	fieldNum := t.NumField()
+	result := make([]string, 0, fieldNum)
+	for i := 0; i < fieldNum; i++ {
+		result = append(result, t.Field(i).Name)
+	}
+	return result
+}
 // 获取板块可改字段
 func GetFeedConfUseSerive() map[string]interface{} {
 	block_datas := make(map[string]interface{})
@@ -160,12 +178,12 @@ func GetFeedConfUseSerive() map[string]interface{} {
 		todayIntro     call_block.IntroRules
 	)
 
-	block_datas["essenceRules"] = essence
-	block_datas["hotRules"] = hot
-	block_datas["newHotRules"] = newHot
-	block_datas["introRules"] = todayIntro
-	block_datas["weekPopularityRule"] = weekPopularity
-	block_datas["contributionRules"] = contribution
+	block_datas["essenceRules"] = GetFieldName(essence)
+	block_datas["hotRules"] = GetFieldName(hot)
+	block_datas["newHotRules"] = GetFieldName(newHot)
+	block_datas["introRules"] = GetFieldName(todayIntro)
+	block_datas["weekPopularityRule"] = GetFieldName(weekPopularity)
+	block_datas["contributionRules"] = GetFieldName(contribution)
 	return block_datas
 }
 
