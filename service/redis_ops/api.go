@@ -15,7 +15,7 @@ func ZAddSort(key string, datas []interface{}) error {
 	for i, data := range datas {
 		if byteData, err := json.Marshal(data); err == nil {
 			zAddMems = append(zAddMems, redis.Z{
-				Score:  float64(i),
+				Score:  float64(count - i),
 				Member: string(byteData),
 			})
 		}
