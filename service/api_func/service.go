@@ -191,36 +191,10 @@ func GetFeedConfUseSerive() map[string]interface{} {
 
 func GetTopicSerive() []map[string]interface{} {
 	topicDatas := topic.GetAll()
-	topicDatasMap := make(map[string]string)
-	for _, data := range topicDatas {
-		topicDatasMap[strconv.Itoa(data.Id)] = data.Title
-	}
-	preMisDatas := feed_permission.GetAll()
-	preMissDataMap := make(map[string]*feed_permission.Model)
-	for _, data := range preMisDatas {
-		preMissDataMap[strconv.Itoa(data.TopicId)] = data
-	}
 	res_datas := make([]map[string]interface{}, 0, len(topicDatas))
 	for _, data := range topicDatas {
-		if _, ok := preMissDataMap[strconv.Itoa(data.Id)]; !ok {
-			titles := make(map[string]interface{})
-			titles["titles"] = ""
-			titles["isUse"] = 0
-			titles["name"] = data.Title
-			res_datas = append(res_datas, titles)
-			continue
-		}
-		preMisData := preMissDataMap[strconv.Itoa(data.Id)]
-		topicids := strings.Split(preMisData.TopicIds, ",")
-		all_titles := make([]string, 0)
-		for _, topicid := range topicids {
-			if data, ok := topicDatasMap[topicid]; ok {
-				all_titles = append(all_titles, data)
-			}
-		}
 		titles := make(map[string]interface{})
-		titles["titles"] = all_titles
-		titles["isUse"] = preMisData.IsUse
+		titles["tid"] = data.Id
 		titles["name"] = data.Title
 		res_datas = append(res_datas, titles)
 	}
