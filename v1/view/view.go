@@ -14,9 +14,9 @@ import (
 func Mapping(prefix string, app *gin.Engine) {
 	admin := app.Group(prefix)
 	admin.GET("/feed_conf", feed_errors.MdError(GetFeedConf))
-	admin.GET("/feed_premission",feed_errors.MdError(GetPremission))
-	admin.GET("/feed_conf_use",feed_errors.MdError(GetFeedConfUse))
-	admin.GET("/topic",feed_errors.MdError(GetTopic))
+	admin.GET("/feed_premission", feed_errors.MdError(GetPremission))
+	admin.GET("/feed_conf_use", feed_errors.MdError(GetFeedConfUse))
+	admin.GET("/topic", feed_errors.MdError(GetTopic))
 }
 
 func GetFeedConf(ctx *gin.Context) error {
@@ -31,7 +31,7 @@ func GetFeedConf(ctx *gin.Context) error {
 	return nil
 }
 
-func GetFeedConfUse(ctx *gin.Context) error{
+func GetFeedConfUse(ctx *gin.Context) error {
 	block_datas := api_func.GetFeedConfUseSerive()
 	ctx.JSON(helper.SuccessWithDate(block_datas))
 	return nil
@@ -39,7 +39,7 @@ func GetFeedConfUse(ctx *gin.Context) error{
 
 func GetPremission(ctx *gin.Context) error {
 	datas := feed_permission.GetAll()
-	if datas != nil{
+	if datas != nil {
 		ctx.JSON(helper.SuccessWithDate(datas))
 	} else {
 		return errors.New("sql no found")
@@ -49,7 +49,7 @@ func GetPremission(ctx *gin.Context) error {
 
 func GetTopic(ctx *gin.Context) error {
 	res_datas := api_func.GetTopicSerive()
-	if res_datas != nil{
+	if res_datas != nil {
 		ctx.JSON(helper.SuccessWithDate(res_datas))
 	}
 	return nil

@@ -21,7 +21,7 @@ const CALl_BLOCK_TODAY_INTRO_TRAIT = "call_block_today_introduction_trait"
 type IntroRules struct {
 	Day     int `json:"day"`
 	CronExp int `json:"cronExp"` // 周期时间
-	Limit      int `json:"limit"`
+	Limit   int `json:"limit"`
 }
 
 type TodayIntro struct {
@@ -91,7 +91,7 @@ func (this *TodayIntro) Start() {
 
 // 写 reids
 func (this *TodayIntro) worker() {
-	redisThreads := data_source.GetTodayIntroSortThread(topic_fid_relation.GetFids(this.topicIds), this.introRules.Day,this.introRules.Limit)
+	redisThreads := data_source.GetTodayIntroSortThread(topic_fid_relation.GetFids(this.topicIds), this.introRules.Day, this.introRules.Limit)
 	redisTraits, _ := boot.InstanceRedisCli(boot.CACHE).HGetAll(this.traitRedisKey()).Result()
 
 	datas := make([]interface{}, 0, len(redisThreads))

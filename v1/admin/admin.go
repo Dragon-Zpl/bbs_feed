@@ -3,6 +3,7 @@ package admin
 import (
 	"bbs_feed/lib/feed_errors"
 	"bbs_feed/lib/helper"
+	"bbs_feed/service"
 	"bbs_feed/service/api_func"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/redis_ops"
@@ -31,6 +32,7 @@ func Mapping(prefix string, app *gin.Engine) {
 
 	admin.POST("/report/thread", feed_errors.MdError(ThreadReport))
 	admin.POST("/report/user", feed_errors.MdError(UserReport))
+	admin.DELETE("/topic/ids", feed_errors.MdError(DelTopicData))
 
 	admin.POST("/trait", feed_errors.MdError(AddCallBlockTrait))
 }
@@ -136,7 +138,7 @@ func UpdateUserReportConf(ctx *gin.Context) error {
 	return nil
 }
 
-// 帖子举报
+// 帖子举报(永久)
 func ThreadReport(ctx *gin.Context) error {
 	var threadReportForm forms.ThreadReportForm
 	if err := ctx.ShouldBind(&threadReportForm); err != nil {
@@ -150,7 +152,7 @@ func ThreadReport(ctx *gin.Context) error {
 	return nil
 }
 
-// 违禁用户
+// 违禁用户(永久)
 //TODO 待确定
 func UserReport(ctx *gin.Context) error {
 	var userReportForm forms.UserReportForm
@@ -159,6 +161,21 @@ func UserReport(ctx *gin.Context) error {
 	}
 	uids := strings.Split(userReportForm.UserIds, ",")
 	api_func.UserReportService(helper.ArrayStrToInt(uids))
+	ctx.JSON(helper.Success())
+	return nil
+}
+
+//删除指定调用块下的帖子或者用户(从缓存中删除)
+func DelTopicData(ctx *gin.Context) error {
+	var delTopicFrom forms.DelTopicFrom
+	if err := ctx.ShouldBind(&delTopicFrom); err != nil {
+		return errors.New("params_error")
+	}
+	agentName := fmt.Sprintf("%s%s%s", delTopicFrom.TopicId, service.Separator, delTopicFrom.FeedType)
+	ids := strings.Split(delTopicFrom.Ids, ",")
+	if err := api_func.DelTopicDataService(agentName, helper.ArrayStrToInt(ids)); err != nil {
+		return err
+	}
 	ctx.JSON(helper.Success())
 	return nil
 }

@@ -3,6 +3,7 @@ package api_func
 import (
 	"bbs_feed/model/feed_conf"
 	"bbs_feed/model/feed_permission"
+	"bbs_feed/model/forum_thread"
 	"bbs_feed/model/topic"
 	"bbs_feed/model/topic_fid_relation"
 	"bbs_feed/service"
@@ -130,9 +131,9 @@ func UpdateUserReportConfService(conf contract.ReportUserConf) {
 
 // 帖子举报
 func ThreadReportService(tids []int) error {
-	//if err := forum_thread.UpdateDisplayorder(tids); err != nil {
-	//	return err
-	//}
+	if err := forum_thread.UpdateDisplayorder(tids); err != nil {
+		return err
+	}
 	creater.ThreadReportCheck.AcceptReportTids(tids)
 	return nil
 }
@@ -140,6 +141,11 @@ func ThreadReportService(tids []int) error {
 // 用户举报
 func UserReportService(uids []int) {
 	creater.UserReportCheck.AcceptReportUids(uids)
+}
+
+//删除指定调用块下的帖子或用户
+func DelTopicDataService(agentName string, ids []int) error {
+	return creater.InstanceFeedService().Remove(agentName, ids)
 }
 
 // 获取板块可改字段
@@ -166,17 +172,17 @@ func GetFeedConfUseSerive() map[string]interface{} {
 func GetTopicSerive() map[string]map[string]interface{} {
 	topicDatas := topic.GetAll()
 	topicDatasMap := make(map[string]string)
-	for _,data := range topicDatas{
+	for _, data := range topicDatas {
 		topicDatasMap[strconv.Itoa(data.Id)] = data.Title
 	}
 	preMisDatas := feed_permission.GetAll()
 	preMissDataMap := make(map[string]*feed_permission.Model)
-	for _,data := range preMisDatas{
+	for _, data := range preMisDatas {
 		preMissDataMap[strconv.Itoa(data.TopicId)] = data
 	}
 	res_datas := make(map[string]map[string]interface{})
-	for _,data := range topicDatas{
-		if _,ok := preMissDataMap[strconv.Itoa(data.Id)]; !ok{
+	for _, data := range topicDatas {
+		if _, ok := preMissDataMap[strconv.Itoa(data.Id)]; !ok {
 			titles := make(map[string]interface{})
 			titles["titles"] = ""
 			titles["isuse"] = 0
@@ -184,10 +190,10 @@ func GetTopicSerive() map[string]map[string]interface{} {
 			continue
 		}
 		preMisData := preMissDataMap[strconv.Itoa(data.Id)]
-		topicids := strings.Split(preMisData.TopicIds,",")
-		all_titles := make([]string,0)
-		for _,topicid := range topicids{
-			if data,ok :=topicDatasMap[topicid]; ok{
+		topicids := strings.Split(preMisData.TopicIds, ",")
+		all_titles := make([]string, 0)
+		for _, topicid := range topicids {
+			if data, ok := topicDatasMap[topicid]; ok {
 				all_titles = append(all_titles, data)
 			}
 		}

@@ -48,6 +48,12 @@ type UserReportForm struct {
 	UserIds string `form:"userIds" binding:"required"`
 }
 
+type DelTopicFrom struct {
+	TopicId  string `form:"topicId" binding:"required"`
+	FeedType string `form:"feedType" binding:"required"`
+	Ids      string `form:"ids" binding:"required"` //删除指定板块下的tid/uid
+}
+
 type TraitFrom struct {
 	Id       string                 `form:"id"`
 	TopicId  string                 `form:"topicId" binding:"required"`
@@ -60,7 +66,6 @@ type CallBackArgs struct {
 	TopicId string `form:"topicId" binding:"required"`
 	Block   string `form:"block" binding:"required"`
 }
-
 
 var Blocks = map[string]string{"hot_thread": "hot", "essence": "essence", "today_introduction": "today_introduction", "week_popularity": "week_popularity", "week_contribution": "week_contribution"}
 
