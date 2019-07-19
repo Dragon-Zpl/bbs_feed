@@ -50,3 +50,13 @@ func SuccessWithDate(data interface{}) (int, interface{}) {
 		"data":    data,
 	}
 }
+
+func SuccessWithDataList(datalist interface{}) (int, interface{}) {
+	return http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": gin.H{
+			"dataList": datalist,
+		},
+	}
+}

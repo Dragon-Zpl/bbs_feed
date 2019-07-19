@@ -149,6 +149,7 @@ func UserReportService(uids []int) {
 func DelTopicDataService(agentName string, ids []int) error {
 	return creater.InstanceFeedService().Remove(agentName, ids)
 }
+
 // 获取结构体的字段
 func GetFieldName(structName interface{}) []string {
 	t := reflect.TypeOf(structName)
@@ -162,10 +163,11 @@ func GetFieldName(structName interface{}) []string {
 	fieldNum := t.NumField()
 	result := make([]string, 0, fieldNum)
 	for i := 0; i < fieldNum; i++ {
-		result = append(result, t.Field(i).Name)
+		result = append(result, t.Field(i).Tag.Get("json"))
 	}
 	return result
 }
+
 // 获取板块可改字段
 func GetFeedConfUseSerive() map[string]interface{} {
 	block_datas := make(map[string]interface{})
@@ -187,7 +189,7 @@ func GetFeedConfUseSerive() map[string]interface{} {
 	return block_datas
 }
 
-func GetTopicSerive() map[string]map[string]interface{} {
+func GetTopicSerive() []map[string]interface{} {
 	topicDatas := topic.GetAll()
 	topicDatasMap := make(map[string]string)
 	for _, data := range topicDatas {
@@ -198,13 +200,14 @@ func GetTopicSerive() map[string]map[string]interface{} {
 	for _, data := range preMisDatas {
 		preMissDataMap[strconv.Itoa(data.TopicId)] = data
 	}
-	res_datas := make(map[string]map[string]interface{})
+	res_datas := make([]map[string]interface{}, 0, len(topicDatas))
 	for _, data := range topicDatas {
 		if _, ok := preMissDataMap[strconv.Itoa(data.Id)]; !ok {
 			titles := make(map[string]interface{})
 			titles["titles"] = ""
-			titles["isuse"] = 0
-			res_datas[data.Title] = titles
+			titles["isUse"] = 0
+			titles["name"] = data.Title
+			res_datas = append(res_datas, titles)
 			continue
 		}
 		preMisData := preMissDataMap[strconv.Itoa(data.Id)]
@@ -217,8 +220,9 @@ func GetTopicSerive() map[string]map[string]interface{} {
 		}
 		titles := make(map[string]interface{})
 		titles["titles"] = all_titles
-		titles["isuse"] = preMisData.IsUse
-		res_datas[data.Title] = titles
+		titles["isUse"] = preMisData.IsUse
+		titles["name"] = data.Title
+		res_datas = append(res_datas, titles)
 	}
 	return res_datas
 }

@@ -50,7 +50,7 @@ func GetPremission(ctx *gin.Context) error {
 func GetTopic(ctx *gin.Context) error {
 	res_datas := api_func.GetTopicSerive()
 	if res_datas != nil {
-		ctx.JSON(helper.SuccessWithDate(res_datas))
+		ctx.JSON(helper.SuccessWithDataList(res_datas))
 	}
 	return nil
 }
