@@ -3,8 +3,8 @@ package api_func
 import (
 	"bbs_feed/model/feed_conf"
 	"bbs_feed/model/feed_permission"
-	"bbs_feed/model/topic"
 	"bbs_feed/model/forum_thread"
+	"bbs_feed/model/topic"
 	"bbs_feed/model/topic_fid_relation"
 	"bbs_feed/service"
 	"bbs_feed/service/kernel/call_block"
@@ -73,7 +73,7 @@ func UpdateAgentService(topicId int, feedTyp string, isUse int) error {
 		m, _ := feed_permission.GetOne(strconv.Itoa(topicId))
 		topicIds := strings.Split(m.TopicIds, ",")
 
-		if agent := creater.GenAgent(topicId, feedTyp, topicIds); agent == nil {
+		if agent := creater.GenAgent(topicId, feedTyp, topicIds); agent != nil {
 			creater.InstanceFeedService().RegisterService(agent)
 		} else {
 			return errors.New("params_error")
@@ -103,6 +103,7 @@ func AddFeedTypeConfService(typ string, conf string) error {
 		}); err2 != nil {
 			return err2
 		} else {
+			//TODO 重启服务?
 			return creater.InstanceFeedService().ChangeConf(typ, conf)
 		}
 	} else {
@@ -166,21 +167,21 @@ func GetFeedConfUseSerive() map[string]interface{} {
 func GetTopicSerive() map[string]map[string]interface{} {
 	topic_datas := topic.GetAll()
 	topic_datas_map := make(map[string]string)
-	for _,data := range topic_datas{
+	for _, data := range topic_datas {
 		topic_datas_map[string(data.Id)] = data.Title
 	}
 	pre_mission_datas := feed_permission.GetAll()
 	mission_datas_map := make(map[string]*feed_permission.Model)
-	for _,data := range pre_mission_datas{
+	for _, data := range pre_mission_datas {
 		mission_datas_map[string(data.TopicId)] = data
 	}
 	res_datas := make(map[string]map[string]interface{})
-	for _,data := range topic_datas{
+	for _, data := range topic_datas {
 		pre_mis_data := mission_datas_map[string(data.Id)]
-		topicids := strings.Split(pre_mis_data.TopicIds,",")
-		all_titles := make([]string,0)
-		for _,topicid := range topicids{
-			if data,ok :=topic_datas_map[topicid]; ok{
+		topicids := strings.Split(pre_mis_data.TopicIds, ",")
+		all_titles := make([]string, 0)
+		for _, topicid := range topicids {
+			if data, ok := topic_datas_map[topicid]; ok {
 				all_titles = append(all_titles, data)
 			}
 			all_titles = append(all_titles, data.Title)

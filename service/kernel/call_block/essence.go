@@ -97,6 +97,7 @@ func (this *Essence) Remover(tids []int) {
 }
 
 func (this *Essence) Stop() {
+	logs.Info(this.redisKey(), "delete success")
 	boot.InstanceRedisCli(boot.CACHE).Del(this.redisKey())
 	this.cancel()
 }

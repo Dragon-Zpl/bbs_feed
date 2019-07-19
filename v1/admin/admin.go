@@ -94,6 +94,7 @@ func AddFeedTypeConf(ctx *gin.Context) error {
 	if err := ctx.ShouldBind(&feedTypeConfForm); err != nil {
 		return errors.New("params_error")
 	}
+	//TODO 重启服务?
 	if err := api_func.AddFeedTypeConfService(feedTypeConfForm.FeedType, feedTypeConfForm.Conf); err != nil {
 		return err
 	}
