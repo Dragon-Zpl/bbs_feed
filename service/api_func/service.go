@@ -1,7 +1,6 @@
 package api_func
 
 import (
-	"bbs_feed/lib/stringi"
 	"bbs_feed/model/feed_conf"
 	"bbs_feed/model/feed_permission"
 	"bbs_feed/model/forum_thread"
@@ -155,15 +154,15 @@ func DelTopicDataService(agentName string, ids []int) error {
 
 //添加额外信息
 func AddCallBlockTraitService(form forms.TraitFrom) error {
-	traitKey := fmt.Sprintf("call_block_%s_trait_%s", form.FeedType, form.TopicId)
+	traitKey := fmt.Sprintf("call_block_%s_trait_%d", form.FeedType, form.TopicId)
 	if traitStr, err := jsoniter.MarshalToString(form.Trait); err != nil {
 		return err
 	} else {
-		redis_ops.HSet(traitKey, form.Id, traitStr, time.Duration(form.Exp)*time.Hour)
+		redis_ops.HSet(traitKey, strconv.Itoa(form.Id), traitStr, time.Duration(form.Exp)*time.Hour)
 		//重启agent
-		m, _ := feed_permission.GetOne(form.TopicId)
-		creater.InstanceFeedService().StopAgents(fmt.Sprintf("%d%s%s", stringi.ToInt(form.TopicId), service.Separator, form.FeedType))
-		creater.InstanceFeedService().RegisterService(creater.GenAgent(stringi.ToInt(form.TopicId), form.FeedType, strings.Split(m.TopicIds, ",")))
+		m, _ := feed_permission.GetOne(strconv.Itoa(form.TopicId))
+		creater.InstanceFeedService().StopAgents(fmt.Sprintf("%d%s%s", form.TopicId, service.Separator, form.FeedType))
+		creater.InstanceFeedService().RegisterService(creater.GenAgent(form.TopicId, form.FeedType, strings.Split(m.TopicIds, ",")))
 	}
 	return nil
 }

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/gin-gonic/gin"
+	"strconv"
 	"strings"
 )
 
@@ -82,7 +83,7 @@ func UpdateTopicIds(ctx *gin.Context) error {
 	if err := ctx.ShouldBind(&topicDataSourceForm); err != nil {
 		return errors.New("params_error")
 	}
-	api_func.UpdateTopicIdsService(topicDataSourceForm.TopicId, topicDataSourceForm.TopicIds)
+	api_func.UpdateTopicIdsService(strconv.Itoa(topicDataSourceForm.TopicId), topicDataSourceForm.TopicIds)
 	ctx.JSON(helper.Success())
 	return nil
 }
@@ -167,7 +168,7 @@ func DelTopicData(ctx *gin.Context) error {
 	if err := ctx.ShouldBind(&delTopicFrom); err != nil {
 		return errors.New("params_error")
 	}
-	agentName := fmt.Sprintf("%s%s%s", delTopicFrom.TopicId, service.Separator, delTopicFrom.FeedType)
+	agentName := fmt.Sprintf("%d%s%s", delTopicFrom.TopicId, service.Separator, delTopicFrom.FeedType)
 	ids := strings.Split(delTopicFrom.Ids, ",")
 	if err := api_func.DelTopicDataService(agentName, helper.ArrayStrToInt(ids)); err != nil {
 		return err
