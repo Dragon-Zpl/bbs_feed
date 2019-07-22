@@ -6,7 +6,6 @@ import (
 	"bbs_feed/model/feed_conf"
 	"bbs_feed/model/feed_permission"
 	"bbs_feed/service/api_func"
-	"errors"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -39,18 +38,12 @@ func GetFeedConfUse(ctx *gin.Context) error {
 
 func GetPremission(ctx *gin.Context) error {
 	datas := feed_permission.GetAll()
-	if datas != nil {
-		ctx.JSON(helper.SuccessWithDate(datas))
-	} else {
-		return errors.New("sql no found")
-	}
+	ctx.JSON(helper.SuccessWithDate(datas))
 	return nil
 }
 
 func GetTopic(ctx *gin.Context) error {
 	res_datas := api_func.GetTopicSerive()
-	if res_datas != nil {
-		ctx.JSON(helper.SuccessWithDataList(res_datas))
-	}
+	ctx.JSON(helper.SuccessWithDataList(res_datas))
 	return nil
 }
