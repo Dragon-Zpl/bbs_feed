@@ -72,7 +72,7 @@ func UpdateTopicService(topicId int, isUse int) error {
 
 //启用、关闭agent
 func UpdateAgentService(topicId int, feedTyp string, isUse int) error {
-	if err := feed_permission.UpdateFeedType(topicId, feedTyp, isUse); err != nil {
+	if err := feed_permission.UpdateFeedType(topicId, helper.Camel2Underline(feedTyp), isUse); err != nil {
 		return err
 	}
 	if isUse == IsUse { //启用
