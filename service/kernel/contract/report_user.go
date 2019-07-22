@@ -14,7 +14,7 @@ type UserReport interface {
 }
 
 type ReportUserConf struct {
-	ReportCount int `form:"reportCount" binding:"required"`
+	ReportCount int `form:"reportCount"`
 }
 
 type UserRep struct {

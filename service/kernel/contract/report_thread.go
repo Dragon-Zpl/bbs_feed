@@ -17,7 +17,7 @@ type ThreadReport interface {
 }
 
 type ReportThreadConf struct {
-	ReportCount int `form:"reportCount" binding:"required"`
+	ReportCount int `form:"reportCount"`
 }
 
 type ThreadRep struct {
