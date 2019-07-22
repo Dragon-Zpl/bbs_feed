@@ -1,8 +1,10 @@
 package helper
 
 import (
+	"bytes"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -34,6 +36,16 @@ func SameElementCount(s []int) map[int]int {
 		}
 	}
 	return m
+}
+
+// 驼峰转下划线
+func Camel2Underline(s string) string {
+	re, _ := regexp.Compile("[A-Z]{1}")
+	s = re.ReplaceAllStringFunc(s, func(s string) string {
+		m := []byte(s)
+		return "_" + string(bytes.ToLower(m[0:1]))
+	})
+	return s
 }
 
 func Success() (int, interface{}) {

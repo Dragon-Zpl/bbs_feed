@@ -127,8 +127,8 @@ func (this *Hot) ChangeFids(topicIds []string) {
 }
 
 func (this *Hot) Stop() {
-	logs.Info(this.redisKey(), "delete success")
 	boot.InstanceRedisCli(boot.CACHE).Del(this.redisKey())
+	logs.Info(this.redisKey(), "delete success")
 	this.cancel()
 }
 

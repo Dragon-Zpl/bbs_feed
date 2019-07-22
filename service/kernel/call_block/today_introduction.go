@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/astaxie/beego/logs"
 	"strconv"
 	"time"
 )
@@ -50,6 +51,7 @@ func (this *TodayIntro) Remover(tids []int) {
 }
 
 func (this *TodayIntro) remover(tids []int) {
+	logs.Info("remove --", this.redisKey(), "--", this.traitRedisKey(), "--", tids)
 	data_source.DelRedisThreadInfo(tids, this.redisKey(), this.traitRedisKey())
 }
 
@@ -108,6 +110,7 @@ func (this *TodayIntro) worker() {
 		datas = append(datas, thread)
 	}
 	redis_ops.ZAddSort(this.redisKey(), datas)
+	logs.Info(this.redisKey(), "insert success")
 }
 
 func (this *TodayIntro) ChangeFids(topicIds []string) {
@@ -117,6 +120,7 @@ func (this *TodayIntro) ChangeFids(topicIds []string) {
 
 func (this *TodayIntro) Stop() {
 	boot.InstanceRedisCli(boot.CACHE).Del(this.redisKey())
+	logs.Info(this.redisKey(), "delete success")
 	this.cancel()
 }
 

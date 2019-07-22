@@ -3,8 +3,9 @@ package service
 const (
 	HOT             = "hot"               // 热门
 	ESSENCE         = "essence"           // 精华
+	NEWHOT          = "newHot"            //最新最热
 	WEEK_POPULARITY = "weekPopularity"    // 周人气
-	CONTRIBUTION    = "contribution"      // 贡献
+	CONTRIBUTION    = "weekContribution"  // 贡献
 	TODAY_INTRO     = "todayIntroduction" // 今日导读
 )
 

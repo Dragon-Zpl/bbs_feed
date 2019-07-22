@@ -1,6 +1,7 @@
 package api_func
 
 import (
+	"bbs_feed/lib/helper"
 	"bbs_feed/model/feed_conf"
 	"bbs_feed/model/feed_permission"
 	"bbs_feed/model/forum_thread"
@@ -154,7 +155,7 @@ func DelTopicDataService(agentName string, ids []int) error {
 
 //添加额外信息
 func AddCallBlockTraitService(form forms.TraitFrom) error {
-	traitKey := fmt.Sprintf("call_block_%s_trait_%d", form.FeedType, form.TopicId)
+	traitKey := fmt.Sprintf("call_block_%s_trait_%d", helper.Camel2Underline(form.FeedType), form.TopicId)
 	if traitStr, err := jsoniter.MarshalToString(form.Trait); err != nil {
 		return err
 	} else {
