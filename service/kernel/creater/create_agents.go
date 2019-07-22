@@ -72,7 +72,7 @@ func WeekContribution() AgentGen {
 // agents 的生成器 用于启动时
 func InitGenAgents() []contract.Agent {
 	once.Do(call_block.InitConfs)
-	topics := feed_permission.GetAll()
+	topics := feed_permission.GetUseAll()
 	agents := make([]contract.Agent, 0)
 
 	for _, one := range topics {

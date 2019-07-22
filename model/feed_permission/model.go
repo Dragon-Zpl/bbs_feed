@@ -44,6 +44,14 @@ func GetAll() []*Model {
 	o := boot.GetSlaveMySql()
 	qs := o.QueryTable((*Model)(nil))
 	m := make([]*Model, 0)
+	qs.All(&m)
+	return m
+}
+
+func GetUseAll() []*Model {
+	o := boot.GetSlaveMySql()
+	qs := o.QueryTable((*Model)(nil))
+	m := make([]*Model, 0)
 	qs.Filter("is_use", 1).All(&m)
 	return m
 }
