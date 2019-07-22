@@ -30,12 +30,12 @@ type FeedTypeConfForm struct {
 }
 
 type TopicDataSourceForm struct {
-	TopicId  string `form:"topicId" binding:"required"`
+	TopicId  int    `form:"topicId"`
 	TopicIds string `form:"topicIds" binding:"required"`
 }
 
 type DelTopicDataFrom struct {
-	TopicId  string `form:"topicId" binding:"required"`
+	TopicId  int    `form:"topicId"`
 	FeedType string `form:"feedType" binding:"required"`
 	Ids      string `form:"ids" binding:"required"` //删除指定板块下的tid/uid
 }
@@ -49,21 +49,21 @@ type UserReportForm struct {
 }
 
 type DelTopicFrom struct {
-	TopicId  string `form:"topicId" binding:"required"`
+	TopicId  int    `form:"topicId"`
 	FeedType string `form:"feedType" binding:"required"`
 	Ids      string `form:"ids" binding:"required"` //删除指定板块下的tid/uid
 }
 
 type TraitFrom struct {
-	Id       string                 `form:"id"`
-	TopicId  string                 `form:"topicId" binding:"required"`
+	Id       int                    `form:"id"`
+	TopicId  int                    `form:"topicId" binding:"required"`
 	FeedType string                 `form:"feedType" binding:"required"`
 	Exp      int                    `form:"exp"`
 	Trait    service.CallBlockTrait `form:"trait"`
 }
 
 type CallBackArgs struct {
-	TopicId string `form:"topicId" binding:"required"`
+	TopicId int    `form:"topicId" binding:"required"`
 	Block   string `form:"block" binding:"required"`
 }
 

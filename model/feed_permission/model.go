@@ -26,15 +26,6 @@ type Model struct {
 	IsUse             int    `orm:"column(is_use)" json:"isUse"`
 }
 
-var FormatFeedType = map[string]string{
-	"hot":               "hot",
-	"essence":           "essence",
-	"newHot":            "new_hot",
-	"todayIntroduction": "today_introduction",
-	"weekPopularity":    "week_popularity",
-	"weekContribution":  "week_contribution",
-}
-
 // 实现表名的接口
 func (m *Model) TableName() string {
 	return tablename
@@ -76,9 +67,6 @@ func UpdateIsUse(topicId int, isUse int) (err error) {
 func UpdateFeedType(topicId int, feedTyp string, isUse int) (err error) {
 	o := boot.GetMasterMysql()
 	qs := o.QueryTable((*Model)(nil))
-	if v, ok := FormatFeedType[feedTyp]; ok {
-		feedTyp = v
-	}
 	_, err = qs.Filter("topicId", topicId).Update(orm.Params{
 		feedTyp: isUse,
 	})

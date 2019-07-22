@@ -8,7 +8,7 @@ import (
 //默认举报次数界限
 const (
 	ThreadReportCountLimit = 3 //帖子举报次数
-	UserCrimeCountLimit    = 1 //用户违规次数
+	UserCrimeCountLimit    = 2 //用户违规次数
 )
 
 //feed service

@@ -6,15 +6,13 @@ import (
 	"bbs_feed/service"
 	"bbs_feed/service/api_func"
 	"bbs_feed/service/kernel/contract"
-	"bbs_feed/service/redis_ops"
 	"bbs_feed/v1/forms"
 	"errors"
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/gin-gonic/gin"
-	"github.com/json-iterator/go"
+	"strconv"
 	"strings"
-	"time"
 )
 
 func Mapping(prefix string, app *gin.Engine) {
@@ -85,7 +83,7 @@ func UpdateTopicIds(ctx *gin.Context) error {
 	if err := ctx.ShouldBind(&topicDataSourceForm); err != nil {
 		return errors.New("params_error")
 	}
-	api_func.UpdateTopicIdsService(topicDataSourceForm.TopicId, topicDataSourceForm.TopicIds)
+	api_func.UpdateTopicIdsService(strconv.Itoa(topicDataSourceForm.TopicId), topicDataSourceForm.TopicIds)
 	ctx.JSON(helper.Success())
 	return nil
 }
@@ -96,7 +94,6 @@ func AddFeedTypeConf(ctx *gin.Context) error {
 	if err := ctx.ShouldBind(&feedTypeConfForm); err != nil {
 		return errors.New("params_error")
 	}
-	//TODO 重启服务?
 	if err := api_func.AddFeedTypeConfService(feedTypeConfForm.FeedType, feedTypeConfForm.Conf); err != nil {
 		return err
 	}
@@ -171,7 +168,7 @@ func DelTopicData(ctx *gin.Context) error {
 	if err := ctx.ShouldBind(&delTopicFrom); err != nil {
 		return errors.New("params_error")
 	}
-	agentName := fmt.Sprintf("%s%s%s", delTopicFrom.TopicId, service.Separator, delTopicFrom.FeedType)
+	agentName := fmt.Sprintf("%d%s%s", delTopicFrom.TopicId, service.Separator, delTopicFrom.FeedType)
 	ids := strings.Split(delTopicFrom.Ids, ",")
 	if err := api_func.DelTopicDataService(agentName, helper.ArrayStrToInt(ids)); err != nil {
 		return err
@@ -186,14 +183,8 @@ func AddCallBlockTrait(ctx *gin.Context) error {
 	if err := ctx.ShouldBind(&traitFrom); err != nil {
 		return errors.New("params_error")
 	}
-	redisKey := fmt.Sprintf("call_block_%s_trait", traitFrom.FeedType)
-	if !redis_ops.KeyExist(redisKey) {
-		return errors.New("redis_key_notexist")
-	}
-	if traitStr, err := jsoniter.MarshalToString(traitFrom.Trait); err != nil {
+	if err := api_func.AddCallBlockTraitService(traitFrom); err != nil {
 		return err
-	} else {
-		redis_ops.HSet(redisKey, traitFrom.Id, traitStr, time.Duration(traitFrom.Exp)*time.Hour)
 	}
 	ctx.JSON(helper.Success())
 	return nil

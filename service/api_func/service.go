@@ -1,6 +1,7 @@
 package api_func
 
 import (
+	"bbs_feed/lib/helper"
 	"bbs_feed/model/feed_conf"
 	"bbs_feed/model/feed_permission"
 	"bbs_feed/model/forum_thread"
@@ -10,13 +11,16 @@ import (
 	"bbs_feed/service/kernel/call_block"
 	"bbs_feed/service/kernel/contract"
 	"bbs_feed/service/kernel/creater"
+	"bbs_feed/service/redis_ops"
 	"bbs_feed/v1/forms"
 	"errors"
 	"fmt"
+	"github.com/json-iterator/go"
 	"log"
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -68,7 +72,7 @@ func UpdateTopicService(topicId int, isUse int) error {
 
 //启用、关闭agent
 func UpdateAgentService(topicId int, feedTyp string, isUse int) error {
-	if err := feed_permission.UpdateFeedType(topicId, feedTyp, isUse); err != nil {
+	if err := feed_permission.UpdateFeedType(topicId, helper.Camel2Underline(feedTyp), isUse); err != nil {
 		return err
 	}
 	if isUse == IsUse { //启用
@@ -105,7 +109,6 @@ func AddFeedTypeConfService(typ string, conf string) error {
 		}); err2 != nil {
 			return err2
 		} else {
-			//TODO 重启服务?
 			return creater.InstanceFeedService().ChangeConf(typ, conf)
 		}
 	} else {
@@ -148,6 +151,21 @@ func UserReportService(uids []int) {
 //删除指定调用块下的帖子或用户
 func DelTopicDataService(agentName string, ids []int) error {
 	return creater.InstanceFeedService().Remove(agentName, ids)
+}
+
+//添加额外信息
+func AddCallBlockTraitService(form forms.TraitFrom) error {
+	traitKey := fmt.Sprintf("call_block_%s_trait_%d", helper.Camel2Underline(form.FeedType), form.TopicId)
+	if traitStr, err := jsoniter.MarshalToString(form.Trait); err != nil {
+		return err
+	} else {
+		redis_ops.HSet(traitKey, strconv.Itoa(form.Id), traitStr, time.Duration(form.Exp)*time.Hour)
+		//重启agent
+		m, _ := feed_permission.GetOne(strconv.Itoa(form.TopicId))
+		creater.InstanceFeedService().StopAgents(fmt.Sprintf("%d%s%s", form.TopicId, service.Separator, form.FeedType))
+		creater.InstanceFeedService().RegisterService(creater.GenAgent(form.TopicId, form.FeedType, strings.Split(m.TopicIds, ",")))
+	}
+	return nil
 }
 
 // 获取结构体的字段
