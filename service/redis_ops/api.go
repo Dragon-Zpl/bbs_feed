@@ -55,5 +55,17 @@ func HSet(key string, field string, val string, expiration time.Duration) {
 	}
 	var r = boot.InstanceRedisCli(boot.CACHE)
 	r.HSet(key, field, val).Result()
-	r.Expire(key, expiration).Result()
+	if expiration != -1 {
+		r.Expire(key, expiration).Result()
+	}
+}
+
+func Hdel(key string, fields ...string) {
+	if len(fields) == 0 {
+		return
+	}
+	var r = boot.InstanceRedisCli(boot.CACHE)
+	for _, field := range fields {
+		r.HDel(key, field)
+	}
 }

@@ -58,7 +58,6 @@ type TraitFrom struct {
 	Id       int                    `form:"id"`
 	TopicId  int                    `form:"topicId" binding:"required"`
 	FeedType string                 `form:"feedType" binding:"required"`
-	Exp      int                    `form:"exp"`
 	Trait    service.CallBlockTrait `form:"trait"`
 }
 

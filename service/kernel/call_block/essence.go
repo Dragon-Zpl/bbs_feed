@@ -123,10 +123,11 @@ func (this *Essence) worker() {
 			if threadTrait, ok := redisTraits[strconv.Itoa(thread.Thread.Tid)]; ok {
 				var callBlockTrait service.CallBlockTrait
 				if err := json.Unmarshal([]byte(threadTrait), &callBlockTrait); err == nil {
-					if callBlockTrait.Exp.Sub(time.Now()) > 0 {
+					expTime, _ := time.Parse("2006-01-02 15:04:05", callBlockTrait.Exp)
+					if time.Now().Sub(expTime) < 0 {
 						thread.Trait = callBlockTrait
 					} else {
-
+						redis_ops.Hdel(this.traitRedisKey(), strconv.Itoa(thread.Thread.Tid))
 					}
 				}
 			}

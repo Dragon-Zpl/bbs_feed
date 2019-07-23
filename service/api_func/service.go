@@ -20,7 +20,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
 )
 
 const (
@@ -159,7 +158,7 @@ func AddCallBlockTraitService(form forms.TraitFrom) error {
 	if traitStr, err := jsoniter.MarshalToString(form.Trait); err != nil {
 		return err
 	} else {
-		redis_ops.HSet(traitKey, strconv.Itoa(form.Id), traitStr, time.Duration(form.Exp)*time.Hour)
+		redis_ops.HSet(traitKey, strconv.Itoa(form.Id), traitStr, -1)
 		//重启agent
 		m, _ := feed_permission.GetOne(strconv.Itoa(form.TopicId))
 		creater.InstanceFeedService().StopAgents(fmt.Sprintf("%d%s%s", form.TopicId, service.Separator, form.FeedType))
