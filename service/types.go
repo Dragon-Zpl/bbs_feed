@@ -1,5 +1,7 @@
 package service
 
+import "time"
+
 const (
 	HOT             = "hot"               // 热门
 	ESSENCE         = "essence"           // 精华
@@ -12,6 +14,7 @@ const (
 type CallBlockTrait struct {
 	IsSetTop  bool   `json:"isSetTop"`  //是否置顶
 	Subscript string `json:"subscript"` //下标
+	Exp time.Time `json:"-"`
 }
 
 const Separator = "_"

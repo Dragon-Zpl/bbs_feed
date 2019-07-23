@@ -123,7 +123,11 @@ func (this *Essence) worker() {
 			if threadTrait, ok := redisTraits[strconv.Itoa(thread.Thread.Tid)]; ok {
 				var callBlockTrait service.CallBlockTrait
 				if err := json.Unmarshal([]byte(threadTrait), &callBlockTrait); err == nil {
-					thread.Trait = callBlockTrait
+					if callBlockTrait.Exp.Sub(time.Now()) > 0 {
+						thread.Trait = callBlockTrait
+					} else {
+
+					}
 				}
 			}
 		}
