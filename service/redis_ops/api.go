@@ -69,3 +69,22 @@ func Hdel(key string, fields ...string) {
 		r.HDel(key, field)
 	}
 }
+
+//游标查询(不保证每次迭代所返回的元素数量)
+func Scan(matchKey string) (keys []string, err error) {
+	var (
+		ks         []string
+		cursor     uint64
+		nextCursor uint64 = 0
+		r                 = boot.InstanceRedisCli(boot.CACHE)
+	)
+	for {
+		ks, cursor, err = r.Scan(nextCursor, matchKey, 10).Result()
+		keys = append(keys, ks...)
+		if cursor == 0 {
+			break
+		}
+		nextCursor = cursor
+	}
+	return
+}
