@@ -70,7 +70,13 @@ func Hdel(key string, fields ...string) {
 	}
 }
 
-//游标查询(不保证每次迭代所返回的元素数量)
+func Del(key ...string) (err error) {
+	var r = boot.InstanceRedisCli(boot.CACHE)
+	_, err = r.Del(key...).Result()
+	return
+}
+
+//游标查询
 func Scan(matchKey string) (keys []string, err error) {
 	var (
 		ks         []string
