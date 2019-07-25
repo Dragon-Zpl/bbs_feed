@@ -12,6 +12,7 @@ import (
 var (
 	MySQLConf MySQL
 	RedisConf Redis
+	EsConf    Search
 	EtcdConf  clientv3.Config
 )
 
@@ -29,6 +30,11 @@ type Redis struct {
 	Port     string
 	Password string
 	DB       int
+}
+
+type Search struct {
+	Host  string
+	Index string // 搜索index前缀
 }
 
 func GetRootPath() string {
@@ -49,6 +55,11 @@ func InitConf() {
 	err = cfg.Section("MySQL").MapTo(&MySQLConf)
 	if err != nil {
 		logs.Error("cfg.MapTo MySQL settings err: %v", err)
+	}
+
+	err = cfg.Section("Search").MapTo(&EsConf)
+	if err != nil {
+		logs.Error("cfg.MapTo Search settings err: %v", err)
 	}
 
 	err = cfg.Section("Redis").MapTo(&RedisConf)

@@ -57,3 +57,11 @@ func ToInt64(s string) int64 {
 	}
 	return num
 }
+
+func ToFloat64(s string) float64 {
+	num, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0
+	}
+	return num
+}
