@@ -12,6 +12,7 @@ require (
 	github.com/json-iterator/go v1.1.6
 	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e // indirect
 	github.com/olivere/elastic v6.2.21+incompatible
+	github.com/robfig/cron v1.2.0
 	go.etcd.io/etcd v3.3.13+incompatible
 	google.golang.org/appengine v1.6.0 // indirect
 	google.golang.org/grpc v1.22.0 // indirect

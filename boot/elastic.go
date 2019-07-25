@@ -32,4 +32,3 @@ func InitSearchClient() {
 	}
 	logs.Info("Elasticsearch returned with code %d and version %s", code, info.Version.Number)
 }
-
