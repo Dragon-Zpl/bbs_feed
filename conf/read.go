@@ -13,7 +13,12 @@ var (
 	MySQLConf MySQL
 	RedisConf Redis
 	EtcdConf  clientv3.Config
+	EsConf    Search
 )
+
+type Search struct {
+	Host  string
+}
 
 type MySQL struct {
 	Host     string
@@ -55,5 +60,8 @@ func InitConf() {
 	if err != nil {
 		logs.Error("cfg.MapTo Redis settings err: %v", err)
 	}
-
+	err = cfg.Section("Search").MapTo(&EsConf)
+	if err != nil {
+		logs.Error("cfg.MapTo Search settings err: %v", err)
+	}
 }
