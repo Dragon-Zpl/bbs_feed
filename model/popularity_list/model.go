@@ -17,6 +17,10 @@ const (
 	Post_Supported   = "post_supported"   //评论被加分
 )
 
+func GetActionScore(useraAction search.UserAction) int {
+	return useraAction.ThreadSupported * 10 + useraAction.PublishThread * 3 + useraAction.PublishPost + useraAction.PostSupported * 5
+}
+
 func GetUserAction() {
 	index := helper.GetWeekStart().Format("2006-01-02")
 	esDatas, err := search.Search(index)
@@ -24,4 +28,10 @@ func GetUserAction() {
 		fmt.Println(err)
 	}
 
+	for _, v := range esDatas{
+		for _, data := range v{
+			data.Score = GetActionScore(data.Action)
+		}
+	}
+	fmt.Println(esDatas)
 }

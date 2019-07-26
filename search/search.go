@@ -35,11 +35,12 @@ type UserAction struct {
 type User struct {
 	Uid string
 	Action UserAction
+	Score int
 }
 
 
 
-func Search(index string) (map[string][]User, error) {
+func Search(index string) (map[string][]*User, error) {
 	index = addIndexPrefix(index)
 	once := sync.Once{}
 	var searchResults []*elastic.SearchResult
@@ -55,7 +56,7 @@ func Search(index string) (map[string][]User, error) {
 		})
 		searchResults = append(searchResults, searchResult)
 	}
-	dataMap := make(map[string][]User)
+	dataMap := make(map[string][]*User)
 	for _, searchResult := range searchResults {
 		for _, hit := range searchResult.Hits.Hits {
 			id := strings.Split(hit.Id, "_")
@@ -66,7 +67,7 @@ func Search(index string) (map[string][]User, error) {
 			if err != nil {
 				return nil, err
 			}
-			user := User{
+			user := &User{
 				Uid: uid,
 				Action: *item,
 			}
@@ -74,7 +75,7 @@ func Search(index string) (map[string][]User, error) {
 				dataMap[fid] = append(dataMap[fid], user)
 				continue
 			}
-			data := make([]User,0)
+			data := make([]*User,0)
 			data = append(data, user)
 			dataMap[fid] = data
 		}
