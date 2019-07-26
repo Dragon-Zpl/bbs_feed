@@ -7,14 +7,14 @@ import (
 )
 
 const (
-	Thread_Supported_score = 10 //帖子被加分权重
-	Publish_Thread_score   = 3 //发帖权重
-	Publish_Post_score     = 1    //评论权重
-	Post_Supported_score   = 5  //评论被加分权重
-	Thread_Supported = "thread_supported" //帖子被加分
-	Publish_Thread   = "publish_thread"   //发帖
-	Publish_Post     = "publish_post"     //评论
-	Post_Supported   = "post_supported"   //评论被加分
+	Thread_Supported_score = 10                 //帖子被加分权重
+	Publish_Thread_score   = 3                  //发帖权重
+	Publish_Post_score     = 1                  //评论权重
+	Post_Supported_score   = 5                  //评论被加分权重
+	Thread_Supported       = "thread_supported" //帖子被加分
+	Publish_Thread         = "publish_thread"   //发帖
+	Publish_Post           = "publish_post"     //评论
+	Post_Supported         = "post_supported"   //评论被加分
 )
 
 func GetActionScore(useraAction search.UserAction) int {

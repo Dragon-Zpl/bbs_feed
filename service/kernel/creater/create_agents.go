@@ -65,7 +65,7 @@ func WeekPopularity() AgentGen {
 //本周贡献榜
 func WeekContribution() AgentGen {
 	return func(topicId int, topicIds []string) contract.Agent {
-		return nil
+		return call_block.NewWeekPopularity(topicId, topicIds)
 	}
 }
 

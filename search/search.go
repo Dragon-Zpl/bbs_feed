@@ -25,20 +25,18 @@ func addIndexPrefix(index string) string {
 
 type UserAction struct {
 	ThreadSupported int `json:"thread_supported"` //帖子被加分
-	ThreadReplied   int `json:"thread_replied"` //帖子被回复
+	ThreadReplied   int `json:"thread_replied"`   //帖子被回复
 	ThreadCollected int `json:"thread_collected"` //帖子被收藏
 	PublishThread   int `json:"publish_thread"`   //发帖
-	PublishPost     int `json:"publish_post"`    //评论
-	PostSupported   int `json:"post_supported"`  //评论被加分
+	PublishPost     int `json:"publish_post"`     //评论
+	PostSupported   int `json:"post_supported"`   //评论被加分
 }
 
 type User struct {
-	Uid string
+	Uid    string
 	Action UserAction
-	Score int
+	Score  int
 }
-
-
 
 func Search(index string) (map[string][]*User, error) {
 	index = addIndexPrefix(index)
@@ -63,19 +61,18 @@ func Search(index string) (map[string][]*User, error) {
 			uid := id[0]
 			fid := id[1]
 			item := new(UserAction)
-			err := json.Unmarshal([]byte(*hit.Source), &item)
-			if err != nil {
+			if err := json.Unmarshal(*hit.Source, &item); err != nil {
 				return nil, err
 			}
 			user := &User{
-				Uid: uid,
+				Uid:    uid,
 				Action: *item,
 			}
 			if _, ok := dataMap[fid]; ok {
 				dataMap[fid] = append(dataMap[fid], user)
 				continue
 			}
-			data := make([]*User,0)
+			data := make([]*User, 0)
 			data = append(data, user)
 			dataMap[fid] = data
 		}
