@@ -5,10 +5,12 @@ import (
 	"bbs_feed/service"
 	"bbs_feed/service/data_source"
 	"bbs_feed/service/kernel/contract"
+	"bbs_feed/service/redis_ops"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/logs"
+	"strconv"
 	"time"
 )
 
@@ -37,11 +39,8 @@ type Contribution struct {
 	contract.UserRep //违规用户
 }
 
-func NewContribution(topicId int, topicIds []string) *Contribution {
-	return &Contribution{
-		name:     fmt.Sprintf("%d%s%s", topicId, service.Separator, service.CONTRIBUTION),
-		topicIds: topicIds,
-	}
+func NewContribution() *Contribution {
+	return &Contribution{}
 }
 
 // 删除 redis 数据
@@ -92,7 +91,32 @@ func (this *Contribution) Start() {
 }
 
 func (this *Contribution) worker() {
-	//todo
+	data_result := data_source.GetContributionData(this.contributionRules.Limit)
+
+	redisTraits, _ := boot.InstanceRedisCli(boot.CACHE).HGetAll(this.traitRedisKey()).Result()
+
+	for k, v := range data_result {
+		topic_id, _ := strconv.Atoi(k)
+		this.topicId = topic_id
+		datas := make([]interface{}, 0, len(v))
+		for _, user := range v {
+			if redisTraits != nil {
+				if threadTrait, ok := redisTraits[strconv.Itoa(user.User.Uid)]; ok {
+					var callBlockTrait service.CallBlockTrait
+					if err := json.Unmarshal([]byte(threadTrait), &callBlockTrait); err == nil {
+						expTime, _ := time.Parse("2006-01-02 15:04:05", callBlockTrait.Exp)
+						if time.Now().Sub(expTime) < 0 {
+							user.Trait = callBlockTrait
+						} else {
+							redis_ops.Hdel(this.traitRedisKey(), strconv.Itoa(user.User.Uid))
+						}
+					}
+				}
+			}
+			datas = append(datas, user)
+		}
+		redis_ops.ZAddSort(this.redisKey(), datas)
+	}
 }
 
 func (this *Contribution) ChangeFids(topicIds []string) {

@@ -2,6 +2,7 @@ package topic_fid_relation
 
 import (
 	"bbs_feed/boot"
+	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 )
 
@@ -34,4 +35,21 @@ func GetFids(topicIds []string) []int {
 		res = append(res, m.Fid)
 	}
 	return res
+}
+
+func GetTopicIds() (map[string]string, error) {
+	var maps []orm.Params
+	o := boot.GetSlaveMySql()
+	sql := "select pref.fid, pref.topic_id from pre_topic_fid_relation pref, pre_topic pret where pref.topic_id = pret.id and pret.is_use = 'yes'"
+	_, err := o.Raw(sql).Values(&maps)
+	if err != nil {
+		logs.Error(err)
+		return nil, err
+	}
+	results := make(map[string]string)
+	for _, v := range maps {
+		results[v["fid"].(string)] = v["topic_id"].(string)
+	}
+	return results, nil
+
 }
