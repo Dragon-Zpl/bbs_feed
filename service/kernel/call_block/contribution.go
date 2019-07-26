@@ -37,8 +37,14 @@ type Contribution struct {
 	contract.UserRep //违规用户
 }
 
-func NewContribution() *Contribution {
-	return &Contribution{}
+func NewContribution(topicId int, topicIds []string) *Contribution {
+	contribution := &Contribution{
+		topicId:  topicId,
+		name:     fmt.Sprintf("%d%s%s", topicId, service.Separator, service.CONTRIBUTION),
+		topicIds: topicIds,
+	}
+	contribution.ReportChan = make(chan []int, 10)
+	return contribution
 }
 
 // 删除 redis 数据
@@ -114,6 +120,7 @@ func (this *Contribution) worker() {
 			datas = append(datas, user)
 		}
 		redis_ops.ZAddSort(this.redisKey(), datas)
+		logs.Info(this.redisKey(), "insert success")
 	}
 }
 

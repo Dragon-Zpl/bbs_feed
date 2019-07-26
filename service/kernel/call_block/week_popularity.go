@@ -38,8 +38,14 @@ type WeekPopularity struct {
 	contract.UserRep //违规用户
 }
 
-func NewWeekPopularity() *WeekPopularity {
-	return &WeekPopularity{}
+func NewWeekPopularity(topicId int, topicIds []string) *WeekPopularity {
+	weekPopularity := &WeekPopularity{
+		topicId:  topicId,
+		name:     fmt.Sprintf("%d%s%s", topicId, service.Separator, service.WEEK_POPULARITY),
+		topicIds: topicIds,
+	}
+	weekPopularity.ReportChan = make(chan []int, 10)
+	return weekPopularity
 }
 
 // 删除 redis 数据
@@ -115,6 +121,7 @@ func (this *WeekPopularity) worker() {
 			datas = append(datas, user)
 		}
 		redis_ops.ZAddSort(this.redisKey(), datas)
+		logs.Info(this.redisKey(), "insert success")
 	}
 }
 
