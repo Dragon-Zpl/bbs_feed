@@ -24,7 +24,8 @@ func addIndexPrefix(index string) string {
 	return conf.EsConf.Index + "_" + index
 }
 
-func Search(index string) (map[string]map[string]map[string]interface{}, error) {
+//游标查询
+func ScrollSearch(index string) (map[string]map[string]map[string]interface{}, error) {
 	index = addIndexPrefix(index)
 	once := sync.Once{}
 	var searchResults []*elastic.SearchResult
