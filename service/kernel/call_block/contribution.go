@@ -1,13 +1,20 @@
 package call_block
 
 import (
+	"bbs_feed/boot"
 	"bbs_feed/service"
+	"bbs_feed/service/data_source"
+	"bbs_feed/service/kernel/contract"
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/astaxie/beego/logs"
 	"time"
 )
 
 //贡献榜
+const CALl_BLOCK_WEEK_CONTRIBUTION = "call_block_week_contribution"
+const CALl_BLOCK_WEEK_CONTRIBUTION_TRAIT = "call_block_week_contribution_trait"
 
 type ContributionRules struct {
 	CronExp time.Duration `json:"cronExp"` // 周期时间
@@ -17,13 +24,17 @@ type ContributionRules struct {
 }
 
 type Contribution struct {
-	name              string
-	reportChan        chan []string
-	ContributionRules ContributionRules
+	topicId int
+	name    string
 
-	cancel   context.CancelFunc
-	Ctx      context.Context
+	contributionRules ContributionRules
+
+	cancel context.CancelFunc
+	Ctx    context.Context
+
 	topicIds []string // 数据源
+
+	contract.UserRep //违规用户
 }
 
 func NewContribution(topicId int, topicIds []string) *Contribution {
@@ -33,19 +44,14 @@ func NewContribution(topicId int, topicIds []string) *Contribution {
 	}
 }
 
-func (this *Contribution) RemoveReportUser() {
-	for {
-		select {
-		case uids := <-this.reportChan:
-			// todo clear redis uids
-			fmt.Println(uids)
-		}
-	}
+// 删除 redis 数据
+func (this *Contribution) Remover(uids []int) {
+	this.remover(uids)
 }
 
-func (this *Contribution) AcceptSign(userIds []string) {
-	this.reportChan <- userIds
-	return
+func (this *Contribution) remover(uids []int) {
+	logs.Info("remove --", this.redisKey(), "--", this.traitRedisKey(), "--", uids)
+	data_source.DelRedisThreadInfo(uids, this.redisKey(), this.traitRedisKey())
 }
 
 func (this *Contribution) GetThis() interface{} {
@@ -56,34 +62,47 @@ func (this *Contribution) Init() {
 	ctx, cancel := context.WithCancel(context.Background())
 	this.Ctx = ctx
 	this.cancel = cancel
-	this.ContributionRules = contribution
+	this.contributionRules = contribution
+	go this.RemoveReportUser(this.remover) // 开启违规用户自检
 }
 
-func (this *Contribution) ChangeConf(conf interface{}) {
-	if conf, ok := conf.(ContributionRules); ok {
-		this.ContributionRules = conf
-		this.reStart()
+func (this *Contribution) ChangeConf(conf string) error {
+	var rule ContributionRules
+	if err := json.Unmarshal([]byte(conf), &rule); err == nil {
+		this.contributionRules = rule
+		go this.reStart()
+		return nil
+	} else {
+		return err
 	}
 }
 
 func (this *Contribution) Start() {
-	t := time.NewTimer(this.ContributionRules.CronExp)
+	this.worker()
+	t := time.NewTimer(time.Duration(this.contributionRules.CronExp) * time.Minute)
 	for {
 		select {
 		case <-t.C:
-			// todo  根据配置 写redis数据
-			t.Reset(this.ContributionRules.CronExp)
+			this.worker()
+			t.Reset(time.Duration(this.contributionRules.CronExp) * time.Minute)
 		case <-this.Ctx.Done():
 			return
 		}
 	}
 }
 
+func (this *Contribution) worker() {
+	//todo
+}
+
 func (this *Contribution) ChangeFids(topicIds []string) {
 	this.topicIds = topicIds
+	go this.reStart()
 }
 
 func (this *Contribution) Stop() {
+	boot.InstanceRedisCli(boot.CACHE).Del(this.redisKey())
+	logs.Info(this.redisKey(), "delete success")
 	this.cancel()
 }
 
@@ -95,4 +114,17 @@ func (this *Contribution) reStart() {
 	this.Stop()
 	this.Ctx, this.cancel = context.WithCancel(context.Background())
 	this.Start()
+}
+
+func (this *Contribution) AddTrait(id string, trait service.CallBlockTrait) {
+	if traitBytes, err := json.Marshal(&trait); err == nil {
+		boot.InstanceRedisCli(boot.CACHE).HSet(this.traitRedisKey(), id, string(traitBytes))
+	}
+}
+func (this *Contribution) redisKey() string {
+	return fmt.Sprintf("%s%s%d", CALl_BLOCK_WEEK_CONTRIBUTION, service.Separator, this.topicId)
+}
+
+func (this *Contribution) traitRedisKey() string {
+	return fmt.Sprintf("%s%s%d", CALl_BLOCK_WEEK_CONTRIBUTION_TRAIT, service.Separator, this.topicId)
 }
