@@ -3,14 +3,13 @@ package search
 import (
 	"bbs_feed/boot"
 	"bbs_feed/conf"
-	"bbs_feed/lib/stringi"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/olivere/elastic"
 	"io"
-	"strconv"
+	"strings"
 	"time"
 )
 
@@ -23,13 +22,9 @@ func addIndexPrefix(index string) string {
 	return conf.EsConf.Index + "_" + index
 }
 
-func Search(index string, tids []string) (map[string]interface{}, error) {
+func Search(index string)(map[string]map[string]map[string]interface{} , error){
 	index = addIndexPrefix(index)
-	tidsMap := make(map[string]interface{})
-	searchResults := make([]*elastic.SearchResult, 0, len(tids)/ScrollSize+1)
-	for i := range tids {
-		tidsMap[tids[i]] = "0"
-	}
+	searchResults := make([]*elastic.SearchResult, 0)
 	//游标查询
 	svc := boot.InstanceSearchCli().Client.Scroll(index).Size(ScrollSize)
 	for {
@@ -39,27 +34,30 @@ func Search(index string, tids []string) (map[string]interface{}, error) {
 		}
 		searchResults = append(searchResults, searchResult)
 	}
+	dataMap := make(map[string]map[string]map[string]interface{})
 	for _, searchResult := range searchResults {
 		for _, hit := range searchResult.Hits.Hits {
+			id := strings.Split(hit.Id, "_")
+			uid := id[0]
+			fid := id[1]
 			item := make(map[string]interface{})
 			err := json.Unmarshal([]byte(*hit.Source), &item)
 			if err != nil {
 				return nil, err
 			}
-			if _, ok := tidsMap[hit.Id]; ok {
-				switch item["counter"].(type) {
-				case int:
-					tidsMap[hit.Id] = string(stringi.ToInt(tidsMap[hit.Id].(string)) + item["counter"].(int))
-				case float64:
-					count := stringi.ToFloat64(tidsMap[hit.Id].(string)) + item["counter"].(float64)
-					tidsMap[hit.Id] = strconv.FormatFloat(count, 'f', -1, 64)
-				}
+			if _, ok := dataMap[fid]; ok{
+				dataMap[fid][uid] = item
+				continue
 			}
-		}
+			data := make(map[string]map[string]interface{})
+			data[uid] = item
+			dataMap[fid] = data
 	}
-	svc.Clear(context.TODO())
-	svc.Do(context.TODO())
-	return tidsMap, nil
+	}
+	//fmt.Println(dataMap)
+	//svc.Clear(context.TODO())
+	//svc.Do(context.TODO())
+	return dataMap, nil
 }
 
 //条件查询
