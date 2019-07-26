@@ -1,5 +1,5 @@
 package popularity_list
 
-func GetUserAction()  {
-	
+func GetUserAction() {
+
 }

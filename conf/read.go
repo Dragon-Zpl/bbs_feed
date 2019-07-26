@@ -16,7 +16,6 @@ var (
 	EtcdConf  clientv3.Config
 )
 
-
 type MySQL struct {
 	Host     string
 	Port     string

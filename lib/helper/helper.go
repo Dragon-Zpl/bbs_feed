@@ -48,6 +48,21 @@ func Camel2Underline(s string) string {
 	return s
 }
 
+// 获取这周开始的时间
+func GetWeekStart() time.Time {
+	t := time.Now()
+	t = time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	wd := t.Weekday()
+	if wd == time.Monday {
+		return t
+	}
+	offset := int(time.Monday - wd)
+	if offset > 0 {
+		offset -= 7
+	}
+	return t.AddDate(0, 0, offset)
+}
+
 func Success() (int, interface{}) {
 	return http.StatusOK, gin.H{
 		"code":    0,
