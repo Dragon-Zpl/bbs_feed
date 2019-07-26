@@ -22,7 +22,23 @@ func addIndexPrefix(index string) string {
 	return conf.EsConf.Index + "_" + index
 }
 
-func Search(index string) (map[string]map[string]map[string]interface{}, error) {
+type UserAction struct {
+	ThreadSupported int `json:"thread_supported"` //帖子被加分
+	ThreadReplied   int `json:"thread_replied"` //帖子被回复
+	ThreadCollected int `json:"thread_collected"` //帖子被收藏
+	PublishThread   int `json:"publish_thread"`   //发帖
+	PublishPost     int `json:"publish_post"`    //评论
+	PostSupported   int `json:"post_supported"`  //评论被加分
+}
+
+type User struct {
+	Uid string
+	Action UserAction
+}
+
+
+
+func Search(index string) (map[string][]User, error) {
 	index = addIndexPrefix(index)
 	searchResults := make([]*elastic.SearchResult, 0)
 	//游标查询
@@ -34,29 +50,32 @@ func Search(index string) (map[string]map[string]map[string]interface{}, error) 
 		}
 		searchResults = append(searchResults, searchResult)
 	}
-	dataMap := make(map[string]map[string]map[string]interface{})
+	dataMap := make(map[string][]User)
 	for _, searchResult := range searchResults {
 		for _, hit := range searchResult.Hits.Hits {
 			id := strings.Split(hit.Id, "_")
 			uid := id[0]
 			fid := id[1]
-			item := make(map[string]interface{})
+			item := new(UserAction)
 			err := json.Unmarshal([]byte(*hit.Source), &item)
 			if err != nil {
 				return nil, err
 			}
+			user := User{
+				Uid: uid,
+				Action: *item,
+			}
 			if _, ok := dataMap[fid]; ok {
-				dataMap[fid][uid] = item
+				dataMap[fid] = append(dataMap[fid], user)
 				continue
 			}
-			data := make(map[string]map[string]interface{})
-			data[uid] = item
+			data := make([]User,0)
+			data = append(data, user)
 			dataMap[fid] = data
 		}
 	}
-	//fmt.Println(dataMap)
-	//svc.Clear(context.TODO())
-	//svc.Do(context.TODO())
+	svc.Clear(context.TODO())
+	svc.Do(context.TODO())
 	return dataMap, nil
 }
 

@@ -1,5 +1,27 @@
 package popularity_list
 
+import (
+	"bbs_feed/lib/helper"
+	"bbs_feed/search"
+	"fmt"
+)
+
+const (
+	Thread_Supported_score = 10 //帖子被加分权重
+	Publish_Thread_score   = 3 //发帖权重
+	Publish_Post_score     = 1    //评论权重
+	Post_Supported_score   = 5  //评论被加分权重
+	Thread_Supported = "thread_supported" //帖子被加分
+	Publish_Thread   = "publish_thread"   //发帖
+	Publish_Post     = "publish_post"     //评论
+	Post_Supported   = "post_supported"   //评论被加分
+)
+
 func GetUserAction() {
+	index := helper.GetWeekStart().Format("2006-01-02")
+	esDatas, err := search.Search(index)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 }
