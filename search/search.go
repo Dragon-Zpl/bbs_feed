@@ -22,7 +22,7 @@ func addIndexPrefix(index string) string {
 	return conf.EsConf.Index + "_" + index
 }
 
-func Search(index string)(map[string]map[string]map[string]interface{} , error){
+func Search(index string) (map[string]map[string]map[string]interface{}, error) {
 	index = addIndexPrefix(index)
 	searchResults := make([]*elastic.SearchResult, 0)
 	//游标查询
@@ -45,14 +45,14 @@ func Search(index string)(map[string]map[string]map[string]interface{} , error){
 			if err != nil {
 				return nil, err
 			}
-			if _, ok := dataMap[fid]; ok{
+			if _, ok := dataMap[fid]; ok {
 				dataMap[fid][uid] = item
 				continue
 			}
 			data := make(map[string]map[string]interface{})
 			data[uid] = item
 			dataMap[fid] = data
-	}
+		}
 	}
 	//fmt.Println(dataMap)
 	//svc.Clear(context.TODO())
