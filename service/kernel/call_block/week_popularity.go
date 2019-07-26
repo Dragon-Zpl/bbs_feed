@@ -20,8 +20,8 @@ const CALl_BLOCK_WEEK_POPULARITY = "call_block_week_popularity"
 const CALl_BLOCK_WEEK_POPULARITY_TRAIT = "call_block_week_popularity_trait"
 
 type WeekPopularityRule struct {
-	CronExp time.Duration `json:"cronExp"` // 周期时间
-	Limit   int           `json:"limit"`
+	CronExp int `json:"cronExp"` // 周期时间
+	Limit   int `json:"limit"`
 }
 
 type WeekPopularity struct {

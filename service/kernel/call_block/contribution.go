@@ -19,10 +19,8 @@ const CALl_BLOCK_WEEK_CONTRIBUTION = "call_block_week_contribution"
 const CALl_BLOCK_WEEK_CONTRIBUTION_TRAIT = "call_block_week_contribution_trait"
 
 type ContributionRules struct {
-	CronExp time.Duration `json:"cronExp"` // 周期时间
-	Views   int           `json:"views"`
-	Replys  int           `json:"replys"`
-	Limit   int           `json:"limit"`
+	CronExp int `json:"cronExp"` // 周期时间
+	Limit   int `json:"limit"`
 }
 
 type Contribution struct {
