@@ -10,6 +10,7 @@ import (
 	"github.com/olivere/elastic"
 	"io"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -40,7 +41,8 @@ type User struct {
 
 func Search(index string) (map[string][]User, error) {
 	index = addIndexPrefix(index)
-	searchResults := make([]*elastic.SearchResult, 0)
+	once := sync.Once{}
+	var searchResults []*elastic.SearchResult
 	//游标查询
 	svc := boot.InstanceSearchCli().Client.Scroll(index).Size(ScrollSize)
 	for {
@@ -48,6 +50,9 @@ func Search(index string) (map[string][]User, error) {
 		if err == io.EOF {
 			break
 		}
+		once.Do(func() {
+			searchResults = make([]*elastic.SearchResult, 0, searchResult.Hits.TotalHits)
+		})
 		searchResults = append(searchResults, searchResult)
 	}
 	dataMap := make(map[string][]User)
