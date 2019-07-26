@@ -35,6 +35,7 @@ type UserAction struct {
 type User struct {
 	Uid    string
 	Action UserAction
+	Score  int
 }
 
 func Search(index string) (map[string][]User, error) {
@@ -60,8 +61,7 @@ func Search(index string) (map[string][]User, error) {
 			uid := id[0]
 			fid := id[1]
 			item := new(UserAction)
-			err := json.Unmarshal([]byte(*hit.Source), &item)
-			if err != nil {
+			if err := json.Unmarshal(*hit.Source, &item); err != nil {
 				return nil, err
 			}
 			user := User{
