@@ -17,7 +17,6 @@ const CALl_BLOCK_WEEK_CONTRIBUTION = "call_block_week_contribution"
 const CALl_BLOCK_WEEK_CONTRIBUTION_TRAIT = "call_block_week_contribution_trait"
 
 type ContributionRules struct {
-	Day     int `json:"day"`
 	CronExp int `json:"cronExp"` // 周期时间
 	Limit   int `json:"limit"`
 }
