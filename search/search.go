@@ -7,9 +7,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/json-iterator/go"
 	"github.com/olivere/elastic"
 	"io"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -24,7 +26,8 @@ func addIndexPrefix(index string) string {
 
 func Search(index string) (map[string]map[string]map[string]interface{}, error) {
 	index = addIndexPrefix(index)
-	searchResults := make([]*elastic.SearchResult, 0)
+	once := sync.Once{}
+	var searchResults []*elastic.SearchResult
 	//游标查询
 	svc := boot.InstanceSearchCli().Client.Scroll(index).Size(ScrollSize)
 	for {
@@ -32,6 +35,9 @@ func Search(index string) (map[string]map[string]map[string]interface{}, error) 
 		if err == io.EOF {
 			break
 		}
+		once.Do(func() {
+			searchResults = make([]*elastic.SearchResult, 0, searchResult.Hits.TotalHits)
+		})
 		searchResults = append(searchResults, searchResult)
 	}
 	dataMap := make(map[string]map[string]map[string]interface{})
@@ -41,8 +47,7 @@ func Search(index string) (map[string]map[string]map[string]interface{}, error) 
 			uid := id[0]
 			fid := id[1]
 			item := make(map[string]interface{})
-			err := json.Unmarshal([]byte(*hit.Source), &item)
-			if err != nil {
+			if err := jsoniter.Unmarshal(*hit.Source, &item); err != nil {
 				return nil, err
 			}
 			if _, ok := dataMap[fid]; ok {
@@ -54,9 +59,8 @@ func Search(index string) (map[string]map[string]map[string]interface{}, error) 
 			dataMap[fid] = data
 		}
 	}
-	//fmt.Println(dataMap)
-	//svc.Clear(context.TODO())
-	//svc.Do(context.TODO())
+	svc.Clear(context.TODO())
+	svc.Do(context.TODO())
 	return dataMap, nil
 }
 
