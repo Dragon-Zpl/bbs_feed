@@ -2,7 +2,6 @@ package data_source
 
 import (
 	"bbs_feed/model/forum_thread"
-	"bbs_feed/search"
 )
 
 // 热门贴的排序规则
@@ -97,14 +96,14 @@ func (this NewHotThread) Swap(i, j int) {
 	this[i], this[j] = this[j], this[i]
 }
 
-type PopulAndContriSort []*search.User
+type PopulAndContriSort []*RedisUser
 
 func (this PopulAndContriSort) Len() int {
 	return len(this)
 }
 
 func (this PopulAndContriSort) Less(i, j int) bool {
-	return this[i].Score > this[j].Score
+	return this[i].User.Score > this[j].User.Score
 }
 
 func (this PopulAndContriSort) Swap(i, j int) {

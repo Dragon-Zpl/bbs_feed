@@ -2,6 +2,7 @@ package call_block
 
 import (
 	"bbs_feed/boot"
+	"bbs_feed/model/topic_fid_relation"
 	"bbs_feed/service"
 	"bbs_feed/service/data_source"
 	"bbs_feed/service/kernel/contract"
@@ -19,8 +20,12 @@ const CALl_BLOCK_WEEK_CONTRIBUTION = "call_block_week_contribution"
 const CALl_BLOCK_WEEK_CONTRIBUTION_TRAIT = "call_block_week_contribution_trait"
 
 type ContributionRules struct {
-	CronExp int `json:"cronExp"` // 周期时间
-	Limit   int `json:"limit"`
+	PublishThreadScore   int `json:"publishThreadScore"`   //发帖得分权重
+	ThreadRepliedScore   int `json:"threadRepliedScore"`   //帖子被回复得分权重
+	ThreadCollectedScore int `json:"threadCollectedScore"` //帖子被收藏得分权重
+	ThreadSupportedScore int `json:"threadSupportScore"`   //帖子被加分得分权重
+	CronExp              int `json:"cronExp"`              // 周期时间
+	Limit                int `json:"limit"`
 }
 
 type Contribution struct {
@@ -95,33 +100,29 @@ func (this *Contribution) Start() {
 }
 
 func (this *Contribution) worker() {
-	data_result := data_source.GetContributionData(this.contributionRules.Limit)
+	data_result := data_source.GetContributionData(topic_fid_relation.GetFids(this.topicIds), this.contributionRules.Limit, this.contributionRules.PublishThreadScore, this.contributionRules.ThreadRepliedScore, this.contributionRules.ThreadCollectedScore, this.contributionRules.ThreadSupportedScore)
 
 	redisTraits, _ := boot.InstanceRedisCli(boot.CACHE).HGetAll(this.traitRedisKey()).Result()
 
-	for k, v := range data_result {
-		topic_id, _ := strconv.Atoi(k)
-		this.topicId = topic_id
-		datas := make([]interface{}, 0, len(v))
-		for _, user := range v {
-			if redisTraits != nil {
-				if threadTrait, ok := redisTraits[strconv.Itoa(user.User.Uid)]; ok {
-					var callBlockTrait service.CallBlockTrait
-					if err := json.Unmarshal([]byte(threadTrait), &callBlockTrait); err == nil {
-						expTime, _ := time.Parse("2006-01-02 15:04:05", callBlockTrait.Exp)
-						if time.Now().Sub(expTime) < 0 {
-							user.Trait = callBlockTrait
-						} else {
-							redis_ops.Hdel(this.traitRedisKey(), strconv.Itoa(user.User.Uid))
-						}
+	datas := make([]interface{}, 0, len(data_result))
+	for _, user := range data_result {
+		if redisTraits != nil {
+			if threadTrait, ok := redisTraits[strconv.Itoa(user.User.Uid)]; ok {
+				var callBlockTrait service.CallBlockTrait
+				if err := json.Unmarshal([]byte(threadTrait), &callBlockTrait); err == nil {
+					expTime, _ := time.Parse("2006-01-02 15:04:05", callBlockTrait.Exp)
+					if time.Now().Sub(expTime) < 0 {
+						user.Trait = callBlockTrait
+					} else {
+						redis_ops.Hdel(this.traitRedisKey(), strconv.Itoa(user.User.Uid))
 					}
 				}
 			}
-			datas = append(datas, user)
 		}
-		redis_ops.ZAddSort(this.redisKey(), datas)
-		logs.Info(this.redisKey(), "insert success")
+		datas = append(datas, user)
 	}
+	redis_ops.ZAddSort(this.redisKey(), datas)
+	logs.Info(this.redisKey(), "insert success")
 }
 
 func (this *Contribution) ChangeFids(topicIds []string) {

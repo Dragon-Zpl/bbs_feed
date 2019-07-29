@@ -37,7 +37,7 @@ func GetFids(topicIds []string) []int {
 	return res
 }
 
-func GetTopicIds() (map[string]string, error) {
+func GetAllFids() (map[string]string, error) {
 	var maps []orm.Params
 	o := boot.GetSlaveMySql()
 	sql := "select pref.fid, pref.topic_id from pre_topic_fid_relation pref, pre_topic pret where pref.topic_id = pret.id and pret.is_use = 'yes'"
@@ -48,7 +48,7 @@ func GetTopicIds() (map[string]string, error) {
 	}
 	results := make(map[string]string)
 	for _, v := range maps {
-		results[v["fid"].(string)] = v["topic_id"].(string)
+		results[v["topic_id"].(string)] = v["fid"].(string)
 	}
 	return results, nil
 

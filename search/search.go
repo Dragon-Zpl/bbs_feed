@@ -3,6 +3,7 @@ package search
 import (
 	"bbs_feed/boot"
 	"bbs_feed/conf"
+	"bbs_feed/service/redis_ops"
 	"context"
 	"encoding/json"
 	"errors"
@@ -15,7 +16,8 @@ import (
 )
 
 const (
-	ScrollSize = 2000
+	ScrollSize    = 2000
+	UserActionKey = "user_action"
 )
 
 // 添加索引前缀
@@ -39,6 +41,14 @@ type User struct {
 }
 
 func Search(index string) (map[string][]*User, error) {
+	result, err := redis_ops.GetString(UserActionKey)
+	if err == nil {
+		data := make(map[string][]*User)
+		err = json.Unmarshal([]byte(result), &data)
+		if err == nil {
+			return data, nil
+		}
+	}
 	index = addIndexPrefix(index)
 	once := sync.Once{}
 	var searchResults []*elastic.SearchResult
@@ -77,8 +87,18 @@ func Search(index string) (map[string][]*User, error) {
 			dataMap[fid] = data
 		}
 	}
+
+	redisResult, err := json.Marshal(dataMap)
+	if err != nil {
+		return nil, err
+	}
+	err = redis_ops.SaveString(UserActionKey, redisResult)
+	if err != nil {
+		return nil, err
+	}
 	svc.Clear(context.TODO())
 	svc.Do(context.TODO())
+
 	return dataMap, nil
 }
 

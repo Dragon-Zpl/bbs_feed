@@ -2,6 +2,7 @@ package call_block
 
 import (
 	"bbs_feed/boot"
+	"bbs_feed/model/topic_fid_relation"
 	"bbs_feed/service"
 	"bbs_feed/service/data_source"
 	"bbs_feed/service/kernel/contract"
@@ -20,8 +21,12 @@ const CALl_BLOCK_WEEK_POPULARITY = "call_block_week_popularity"
 const CALl_BLOCK_WEEK_POPULARITY_TRAIT = "call_block_week_popularity_trait"
 
 type WeekPopularityRule struct {
-	CronExp int `json:"cronExp"` // 周期时间
-	Limit   int `json:"limit"`
+	ThreadSupportedScore int `json:"threadSupportedScore"` //帖子被加分权重
+	PublishThreadScore   int `json:"publishThreadScore"`   //发帖权重
+	PublishPostScore     int `json:"publishPostScore"`     //评论权重
+	PostSupportedScore   int `json:"postSupportScore"`     //评论被加分权重
+	CronExp              int `json:"cronExp"`              // 周期时间
+	Limit                int `json:"limit"`
 }
 
 type WeekPopularity struct {
@@ -96,33 +101,28 @@ func (this *WeekPopularity) Start() {
 }
 
 func (this *WeekPopularity) worker() {
-	data_result := data_source.GetPopulData(this.weekPopularityRule.Limit)
+	data_result := data_source.GetPopulData(topic_fid_relation.GetFids(this.topicIds), this.weekPopularityRule.Limit, this.weekPopularityRule.PostSupportedScore, this.weekPopularityRule.PublishPostScore, this.weekPopularityRule.PublishThreadScore, this.weekPopularityRule.ThreadSupportedScore)
 
 	redisTraits, _ := boot.InstanceRedisCli(boot.CACHE).HGetAll(this.traitRedisKey()).Result()
-
-	for k, v := range data_result {
-		topic_id, _ := strconv.Atoi(k)
-		this.topicId = topic_id
-		datas := make([]interface{}, 0, len(v))
-		for _, user := range v {
-			if redisTraits != nil {
-				if threadTrait, ok := redisTraits[strconv.Itoa(user.User.Uid)]; ok {
-					var callBlockTrait service.CallBlockTrait
-					if err := json.Unmarshal([]byte(threadTrait), &callBlockTrait); err == nil {
-						expTime, _ := time.Parse("2006-01-02 15:04:05", callBlockTrait.Exp)
-						if time.Now().Sub(expTime) < 0 {
-							user.Trait = callBlockTrait
-						} else {
-							redis_ops.Hdel(this.traitRedisKey(), strconv.Itoa(user.User.Uid))
-						}
+	datas := make([]interface{}, 0, len(data_result))
+	for _, user := range data_result {
+		if redisTraits != nil {
+			if threadTrait, ok := redisTraits[strconv.Itoa(user.User.Uid)]; ok {
+				var callBlockTrait service.CallBlockTrait
+				if err := json.Unmarshal([]byte(threadTrait), &callBlockTrait); err == nil {
+					expTime, _ := time.Parse("2006-01-02 15:04:05", callBlockTrait.Exp)
+					if time.Now().Sub(expTime) < 0 {
+						user.Trait = callBlockTrait
+					} else {
+						redis_ops.Hdel(this.traitRedisKey(), strconv.Itoa(user.User.Uid))
 					}
 				}
 			}
-			datas = append(datas, user)
 		}
-		redis_ops.ZAddSort(this.redisKey(), datas)
-		logs.Info(this.redisKey(), "insert success")
+		datas = append(datas, user)
 	}
+	redis_ops.ZAddSort(this.redisKey(), datas)
+	logs.Info(this.redisKey(), "insert success")
 }
 
 func (this *WeekPopularity) ChangeFids(topicIds []string) {

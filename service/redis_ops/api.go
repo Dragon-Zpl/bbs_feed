@@ -94,3 +94,20 @@ func Scan(matchKey string) (keys []string, err error) {
 	}
 	return
 }
+
+func SaveString(key string, value interface{}) error {
+	boot.InstanceRedisCli(boot.CACHE).Del(key)
+	_, err := boot.InstanceRedisCli(boot.CACHE).Set(key, value, time.Duration(240)*time.Second).Result()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetString(key string) (string, error) {
+	result, err := boot.InstanceRedisCli(boot.CACHE).Get(key).Result()
+	if err != nil {
+		return "", err
+	}
+	return result, nil
+}
