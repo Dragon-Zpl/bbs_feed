@@ -58,24 +58,26 @@ func GetPopulData(ids []int, limit, PostSupportedScore, PublishPostScore, Publis
 		uid, _ := strconv.Atoi(id)
 		user.Uid = uid
 		user.Score = userAction.PublishPost*PublishPostScore + userAction.PostSupported*PostSupportedScore + userAction.PublishThread*PublishThreadScore + userAction.ThreadSupported*ThreadSupportedScore
-		userName, err := common_member.GetUserName(id)
-		if err != nil {
-			name = ""
-		} else {
-			name = userName.Username
-		}
-		user.Name = name
 		redisUser.User = *user
 		resSlice = append(resSlice, redisUser)
 	}
 
 	sort.Sort(resSlice)
-
-	if len(resSlice) < limit {
-		return resSlice
+	if len(resSlice) > limit {
+		resSlice = resSlice[:limit]
 	}
 
-	return resSlice[:limit]
+	for _, oneUser := range resSlice {
+		userName, err := common_member.GetUserName(strconv.Itoa(oneUser.User.Uid))
+		if err != nil {
+			name = ""
+		} else {
+			name = userName.Username
+		}
+		oneUser.User.Name = name
+	}
+
+	return resSlice
 }
 
 func GetContributionData(ids []int, limit, Publish_Thread_Score, Thread_Replied_Score, Thread_Collected_Score, Thread_Supported_Score int) []*RedisUser {
@@ -92,21 +94,24 @@ func GetContributionData(ids []int, limit, Publish_Thread_Score, Thread_Replied_
 		uid, _ := strconv.Atoi(id)
 		user.Uid = uid
 		user.Score = userAction.PublishPost*Publish_Thread_Score + userAction.PostSupported*Thread_Replied_Score + userAction.PublishThread*Thread_Collected_Score + userAction.ThreadSupported*Thread_Supported_Score
-		userName, err := common_member.GetUserName(id)
-		if err != nil {
-			name = ""
-		} else {
-			name = userName.Username
-		}
-		user.Name = name
 		redisUser.User = *user
 		resSlice = append(resSlice, redisUser)
 	}
 
 	sort.Sort(resSlice)
-	if len(resSlice) < limit {
-		return resSlice
+	if len(resSlice) > limit {
+		resSlice = resSlice[:limit]
 	}
 
-	return resSlice[:limit]
+	for _, oneUser := range resSlice {
+		userName, err := common_member.GetUserName(strconv.Itoa(oneUser.User.Uid))
+		if err != nil {
+			name = ""
+		} else {
+			name = userName.Username
+		}
+		oneUser.User.Name = name
+	}
+
+	return resSlice
 }
